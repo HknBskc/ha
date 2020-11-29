@@ -10,6 +10,9 @@ python_script:
 sun:
 #map:
 
+#deneme
+
+
 #samsungtv_smart:
 #  - platform: samsungtv_tizen
 #  - host: 192.168.0.2
