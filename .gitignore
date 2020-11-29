@@ -7,7 +7,7 @@ custom_components/
 deps/
 home-assistant.log
 *.db
-home-assistant_v2.db.*
+home-assistant_v2.db*
 image/
 node-red/
 secrets.yaml
