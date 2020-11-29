@@ -1,3 +1,5 @@
+#dee
+
 - platform: mqtt
   name: "Kapı"
   device_class: door
