@@ -40,8 +40,8 @@ http:
 #  server_port: !secret port
 #  ssl_certificate: /ssl/fullchain.pem
 #  ssl_key: /ssl/privkey.pem
- # ip_ban_enabled: true
- # login_attempts_threshold: 9
+#  ip_ban_enabled: true
+#  login_attempts_threshold: 9
  
 #duckdns:
   #domain: !secret duckdns_url
