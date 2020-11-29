@@ -1,0 +1,3077 @@
+- id: '1579627791780'
+  alias: kapı - on - time
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: 3d4d76baa1e7fe206db9aec3f1bf270b
+    entity_id: binary_sensor.kapi
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 6
+      seconds: 0
+  action:
+  - data:
+      message: Daire kapısı açık kaldı.
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1588185803489'
+  alias: ha start
+  description: ''
+  trigger:
+  - event: start
+    platform: homeassistant
+  condition: []
+  action:
+  - data:
+      message: Home Assistant açıldı
+    service: notify.mobile_app_hakan
+  - delay: '8'
+  - data: {}
+    service: script.0x000b57fffe3483aa_check
+  - service: script.0x00158d00007344a4_check
+    data: {}
+  - service: script.0x00158d0001310df5_check
+    data: {}
+  - service: script.0x14b457fffe75e1c5_check
+    data: {}
+  mode: single
+- id: '1588541165146'
+  alias: hassio shutdown
+  description: ''
+  trigger:
+  - event: shutdown
+    platform: homeassistant
+  condition: []
+  action:
+  - data:
+      message: Home Assistant kapandı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1588605947165'
+  alias: cpu > 60
+  description: ''
+  trigger:
+  - above: '65'
+    entity_id: sensor.cpu_temperature
+    platform: numeric_state
+  condition: []
+  action:
+  - data:
+      message: Rpi cpu sıcaklığı 65°
+    service: notify.telegram
+  mode: single
+- id: '1593554733703'
+  alias: priz açık kaldı
+  description: ''
+  trigger:
+  - device_id: 91d566884fba4e68bb8d831d778b72c7
+    domain: switch
+    entity_id: switch.priz1
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+    platform: device
+    type: turned_on
+  condition: []
+  action:
+  - data:
+      message: Yatak odası prizini kontrol et.
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1594575131064'
+  alias: armed_away - kapi kilit
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kapi_kilidi
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.home_alarm
+    state: armed_away
+  action:
+  - entity_id: alarm_control_panel.home_alarm
+    service: alarm_control_panel.alarm_trigger
+  mode: single
+- id: '1594846163034'
+  alias: oo led gece seviyesi
+  description: ''
+  trigger:
+  - at: '23:00'
+    platform: time
+  condition:
+  - condition: state
+    entity_id: light.oo_led
+    state: 'on'
+  action:
+  - data:
+      brightness: 100
+    entity_id: light.oo_led
+    service: light.turn_on
+  mode: single
+- id: '1594890624983'
+  alias: armed_away - kapi
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kapi
+    platform: state
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.kapi_kilidi
+    to: 'on'
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.home_alarm
+      state: armed_away
+    - condition: state
+      entity_id: binary_sensor.kapi
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.kapi_kilidi
+      state: 'on'
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      title: Alarm - Dışarıda
+      message: Daire Kapısı Açıldı
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+  mode: single
+- id: '1594890807478'
+  alias: alarm - triggered
+  description: ''
+  trigger:
+  - entity_id: alarm_control_panel.home_alarm
+    platform: state
+    to: triggered
+  condition: []
+  action:
+  - data:
+      message: 'Alarm tetiklendi
+
+        Daire kapısı: {{ states.binary_sensor.kapi.state }}
+
+        Daire kapı kilidi: {{ states.binary_sensor.kapi_kilidi.state }}
+
+        '
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1594892213987'
+  alias: alarm - disarmed
+  description: ''
+  trigger:
+  - entity_id: alarm_control_panel.home_alarm
+    platform: state
+    to: disarmed
+  condition: []
+  action:
+  - data:
+      message: Alarm devre dışı bırakıldı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1594892643937'
+  alias: armed_away - kuruldu
+  description: ''
+  trigger:
+  - entity_id: alarm_control_panel.home_alarm
+    from: arming
+    platform: state
+    to: armed_away
+  condition: []
+  action:
+  - data:
+      message: Armed Away
+      title: Alarm Kuruldu
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1594920537910'
+  alias: gün batımı - turn on lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sun.sun
+    to: below_horizon
+  condition: []
+  action:
+  - device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: turn_on
+  - type: turn_on
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  mode: single
+- id: '1594938051662'
+  alias: armed_home - kapı
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kapi
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.home_alarm
+    state: armed_home
+  action:
+  - condition: state
+    entity_id: binary_sensor.kapi_kilidi
+    state: 'on'
+  - service: notify.mobile_app_hakan
+    data:
+      title: Alarm - Armed Home
+      message: Daire kapısı açıldı
+      data:
+        apns_headers:
+          apns-collapse-id: armed-home-kapi
+  - wait_for_trigger:
+    - platform: state
+      entity_id: binary_sensor.kapi
+      to: 'off'
+  - service: notify.mobile_app_hakan
+    data:
+      title: Alarm - Armed Home
+      message: Daire kapısı kapatıldı
+      data:
+        apns_headers:
+          apns-collapse-id: armed-home-kapi
+  mode: restart
+- id: '1594986498727'
+  alias: kapı - on - gece bildirimi
+  description: ''
+  trigger:
+  - at: '23:59'
+    platform: time
+  condition:
+  - type: is_open
+    condition: device
+    device_id: 3d4d76baa1e7fe206db9aec3f1bf270b
+    entity_id: binary_sensor.kapi
+    domain: binary_sensor
+  action:
+  - data:
+      message: Kapıyı kilitle
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1594987811375'
+  alias: armed_home - kuruldu
+  description: ''
+  trigger:
+  - entity_id: alarm_control_panel.home_alarm
+    from: disarmed
+    platform: state
+    to: armed_home
+  condition: []
+  action:
+  - data:
+      message: Armed Home
+      title: Alarm Kuruldu
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1595447992993'
+  alias: hakan at home
+  description: ''
+  trigger:
+  - entity_id: device_tracker.hakan
+    event: enter
+    platform: zone
+    zone: zone.home
+  condition: []
+  action:
+  - data: {}
+    entity_id: alarm_control_panel.home_alarm
+    service: alarm_control_panel.alarm_arm_home
+  - data:
+      message: Hakan evde
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1595448223312'
+  alias: hakan not at home
+  description: ''
+  trigger:
+  - entity_id: device_tracker.hakan
+    event: leave
+    platform: zone
+    zone: zone.home
+  condition: []
+  action:
+  - data: {}
+    entity_id: alarm_control_panel.home_alarm
+    service: alarm_control_panel.alarm_arm_away
+  - data:
+      message: Hakan evden uzaklaştı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1596139183526'
+  alias: co button - stop
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: brightness_stop
+    discovery_id: 0x14b457fffe5e2db6 action_brightness_stop
+  condition: []
+  action:
+  - data:
+      direction: stop
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1596285663901'
+  alias: antre hareket - sifirla
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.hareket1
+    for: '5'
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data:
+      entity_id: binary_sensor.hareket1
+      state: 'off'
+    service: python_script.set_state
+  mode: single
+- id: '1596303033319'
+  alias: status - hareket sensörü
+  description: ''
+  trigger:
+  - entity_id: switch.0x000d6ffffedc5d99_priz_switch
+    platform: state
+    to: unavailable
+  condition: []
+  action:
+  - data:
+      message: Hareket sensörü kullanım dışı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1596828412495'
+  alias: antre - auto light on
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.hareket1
+    for: '0.1'
+    from: 'off'
+    platform: state
+    to: 'on'
+  - entity_id: binary_sensor.kapi
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: or
+    conditions:
+    - after: sunset
+      after_offset: -02:00
+      condition: sun
+    - before: sunrise
+      condition: sun
+  action:
+  - choose:
+    - conditions:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: timer.antre_light
+          state: active
+        - condition: device
+          device_id: fbb2760cf23041e7b2a9c9b26985f8d8
+          domain: binary_sensor
+          entity_id: binary_sensor.hareket1
+          type: is_motion
+        - condition: state
+          entity_id: binary_sensor.kapi
+          state: 'off'
+      sequence:
+      - data: {}
+        entity_id: timer.antre_light
+        service: timer.start
+    default: []
+  - condition: device
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    domain: light
+    entity_id: light.0x14b457fffe75e1c5_light
+    type: is_off
+  - condition: state
+    entity_id: input_boolean.antre_light_auto
+    state: 'on'
+  - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    domain: light
+    entity_id: light.0x14b457fffe75e1c5_light
+    type: turn_on
+  - condition: state
+    entity_id: binary_sensor.kapi
+    state: 'off'
+  - data: {}
+    entity_id: timer.antre_light
+    service: timer.start
+  mode: single
+- id: '1596883988055'
+  alias: antre button - on
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: 'on'
+    discovery_id: 0x14b457fffe7f3bb3 action_on
+  condition: []
+  action:
+  - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    domain: light
+    entity_id: light.0x14b457fffe75e1c5_light
+    flash: short
+    type: turn_on
+  - data: {}
+    entity_id: timer.antre_light
+    service: timer.cancel
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.antre_light_auto
+  mode: single
+- id: '1596884016773'
+  alias: antre button - off
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: 'off'
+    discovery_id: 0x14b457fffe7f3bb3 action_off
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    entity_id: light.0x14b457fffe75e1c5_light
+    domain: light
+  mode: single
+- id: '1596884168201'
+  alias: antre button - stop
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: brightness_stop
+    discovery_id: 0x14b457fffe7f3bb3 action_brightness_stop
+  condition: []
+  action:
+  - data:
+      direction: stop
+      ha_lights:
+      - light.0x14b457fffe75e1c5_light
+      lights:
+      - '0x14b457fffe75e1c5'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1596887545371'
+  alias: antre light - acik kaldi
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 360b5e2a177011eb92c1cba85206b4a2
+    entity_id: switch.0x00158d000549fbab_switch_l1
+    domain: switch
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: binary_sensor.kapi
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.hareket1
+    state: 'off'
+  action:
+  - data:
+      data:
+        push:
+          category: isik
+      message: Antre ışığı 10 dakikadır açık
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1596888566119'
+  alias: status - kapi
+  description: ''
+  trigger:
+  - entity_id: sensor.tasmota_status_kapi
+    platform: state
+    to: unavailable
+  condition: []
+  action:
+  - data:
+      message: Kapı sensörü devre dışı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1596890802243'
+  alias: notify action - antre ışık kapat
+  description: ''
+  trigger:
+  - event_data:
+      actionName: ANTRE_LIGHT
+    event_type: ios.notification_action_fired
+    platform: event
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.0x14b457fffe75e1c5_light
+    service: light.turn_off
+  mode: single
+- id: '1596919135876'
+  alias: notify action - co light off
+  description: ''
+  trigger:
+  - event_data:
+      actionName: YO_LIGHT
+    event_type: ios.notification_action_fired
+    platform: event
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.0x000b57fffe3483aa_light
+    service: light.turn_off
+  mode: single
+- id: '1596919204254'
+  alias: notify action - oo led off
+  description: ''
+  trigger:
+  - event_data:
+      actionName: OO_LIGHT
+    event_type: ios.notification_action_fired
+    platform: event
+  condition: []
+  action:
+  - data: {}
+    entity_id: light.oo_led
+    service: light.turn_off
+  mode: single
+- id: '1596957221365'
+  alias: status - oo led
+  description: ''
+  trigger:
+  - entity_id: light.oo_led
+    platform: state
+    to: unavailable
+    for: '60'
+  condition: []
+  action:
+  - data:
+      message: Oo led devre dışı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: zigbee2mqtt_create_notification_on_successfull_interview
+  alias: Zigbee Device Joined Notification
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/log
+  condition:
+  - condition: template
+    value_template: '{{trigger.payload_json.type == "pairing" and trigger.payload_json.message
+      == "interview_successful"}}'
+  action:
+  - service: persistent_notification.create
+    data:
+      title: Device joined the Zigbee2MQTT network
+      message: 'Name: {{trigger.payload_json.meta.friendly_name}}
+
+        Vendor: {{trigger.payload_json.meta.vendor}}
+
+        Description: {{trigger.payload_json.meta.description}}
+
+        '
+  mode: single
+- id: '1597270036170'
+  alias: antre timer - finished
+  description: ''
+  trigger:
+  - event_data:
+      entity_id: timer.antre_light
+    event_type: timer.finished
+    platform: event
+  - event_data:
+      entity_id: timer.antre_light_uzun
+    event_type: timer.finished
+    platform: event
+  condition: []
+  action:
+  - condition: state
+    entity_id: input_boolean.antre_light_auto
+    state: 'on'
+  - type: turn_off
+    device_id: 360b5e2a177011eb92c1cba85206b4a2
+    entity_id: switch.0x00158d000549fbab_switch_l1
+    domain: switch
+  mode: single
+- id: '1597270134223'
+  alias: kapi - off
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kapi
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data: {}
+    entity_id: timer.antre_light
+    service: timer.start
+  mode: single
+- id: '1597272435165'
+  alias: antre light - off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: switch.0x00158d000549fbab_switch_l1
+    to: 'off'
+  condition: []
+  action:
+  - data: {}
+    entity_id: timer.antre_light
+    service: timer.cancel
+  - service: timer.cancel
+    data: {}
+    entity_id: timer.antre_light_uzun
+  - data: {}
+    entity_id: input_boolean.antre_light_auto
+    service: input_boolean.turn_on
+  - data: {}
+    entity_id: input_boolean.0x00158d000549fbab_switch_l1
+    service: input_boolean.turn_off
+  mode: single
+- id: '1597273261673'
+  alias: antre hareket - off
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.hareket1
+    from: 'on'
+    platform: state
+    to: 'off'
+    for: '15'
+  condition:
+  - type: is_not_open
+    condition: device
+    device_id: 3d4d76baa1e7fe206db9aec3f1bf270b
+    entity_id: binary_sensor.kapi
+    domain: binary_sensor
+  action:
+  - service: timer.finish
+    data: {}
+    entity_id: timer.antre_light
+  mode: single
+- id: '1597714453559'
+  alias: Sinek ilaci
+  description: ''
+  trigger:
+  - event: sunrise
+    platform: sun
+  condition:
+  - condition: state
+    entity_id: input_boolean.sinek_ilaci
+    state: 'on'
+  action:
+  - data: {}
+    entity_id: switch.priz1
+    service: switch.turn_off
+  mode: single
+- id: '1598045076245'
+  alias: kapi - on
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.kapi
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - data: {}
+    entity_id: timer.antre_light
+    service: timer.cancel
+  - service: timer.cancel
+    data: {}
+    entity_id: timer.antre_light_uzun
+  - service: script.antre_light_time_limited
+    data: {}
+  mode: single
+- id: '1598053325497'
+  alias: status - sicaklik sensoru
+  description: ''
+  trigger:
+  - entity_id: sensor.tasmota_sht_status
+    platform: state
+    to: unavailable
+  condition: []
+  action:
+  - data:
+      message: Sıcaklık sensörü devre dışı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1598366757526'
+  alias: antre button - up
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: brightness_move_up
+    discovery_id: 0x14b457fffe7f3bb3 action_brightness_move_up
+  condition: []
+  action:
+  - data:
+      direction: up
+      ha_lights:
+      - light.0x14b457fffe75e1c5_light
+      lights:
+      - '0x14b457fffe75e1c5'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1598366879302'
+  alias: antre button - down
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: brightness_move_down
+    discovery_id: 0x14b457fffe7f3bb3 action_brightness_move_down
+  condition: []
+  action:
+  - data:
+      direction: down
+      ha_lights:
+      - light.0x14b457fffe75e1c5_light
+      lights:
+      - '0x14b457fffe75e1c5'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1598367526452'
+  alias: co button - off
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: 'off'
+    discovery_id: 0x14b457fffe5e2db6 action_off
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  - condition: device
+    type: is_on
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l1
+    domain: switch
+  - type: turn_off
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l1
+    domain: switch
+  mode: single
+- id: '1598367582537'
+  alias: co button - on - gunduz
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: 'on'
+    discovery_id: 0x14b457fffe5e2db6 action_on
+  condition:
+  - condition: time
+    after: 06:00
+    before: 00:00
+  action:
+  - type: turn_on
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+    brightness_pct: 60
+  mode: single
+- id: '1598367803720'
+  alias: co button - up
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: brightness_move_up
+    discovery_id: 0x14b457fffe5e2db6 action_brightness_move_up
+  condition: []
+  action:
+  - data:
+      direction: up
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1598367829684'
+  alias: co button - down
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: brightness_move_down
+    discovery_id: 0x14b457fffe5e2db6 action_brightness_move_down
+  condition: []
+  action:
+  - data:
+      direction: down
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1598382314816'
+  alias: dimmer - right
+  description: ''
+  trigger:
+  - device_id: dd3a80d8758e4dd98ad1fb089a261768
+    discovery_id: 0x000b57fffe2c313c action_rotate_right
+    domain: mqtt
+    platform: device
+    subtype: rotate_right
+    type: action
+  condition:
+  - condition: device
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: is_on
+  action:
+  - device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: brightness_increase
+  mode: single
+- id: '1598382369792'
+  alias: dimmer - left
+  description: ''
+  trigger:
+  - device_id: dd3a80d8758e4dd98ad1fb089a261768
+    discovery_id: 0x000b57fffe2c313c action_rotate_left
+    domain: mqtt
+    platform: device
+    subtype: rotate_left
+    type: action
+  condition:
+  - condition: device
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: is_on
+  action:
+  - device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: brightness_decrease
+  mode: single
+- id: '1598382460746'
+  alias: dimmer - left quick
+  description: ''
+  trigger:
+  - device_id: dd3a80d8758e4dd98ad1fb089a261768
+    discovery_id: 0x000b57fffe2c313c action_rotate_left_quick
+    domain: mqtt
+    platform: device
+    subtype: rotate_left_quick
+    type: action
+  condition: []
+  action:
+  - device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: turn_off
+  mode: single
+- id: '1598382495175'
+  alias: dimmer - right quick
+  description: ''
+  trigger:
+  - device_id: dd3a80d8758e4dd98ad1fb089a261768
+    discovery_id: 0x000b57fffe2c313c action_rotate_right_quick
+    domain: mqtt
+    platform: device
+    subtype: rotate_right_quick
+    type: action
+  condition: []
+  action:
+  - device_id: 032d813dafa5400ab38817c73fbe7a6b
+    domain: light
+    entity_id: light.0x000b57fffe3483aa_light
+    type: turn_on
+  mode: single
+- id: '1598388207534'
+  alias: antre light - on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: switch.0x00158d000549fbab_switch_l1
+    to: 'on'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x00158d000549fbab_switch_l1
+    service: input_boolean.turn_on
+  mode: single
+- id: '1598388257873'
+  alias: co light 0x000b57fffe3483aa - on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x000b57fffe3483aa_light
+    to: 'on'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x000b57fffe3483aa_light
+    service: input_boolean.turn_on
+  mode: single
+- id: '1598388292223'
+  alias: co light 0x000b57fffe3483aa - off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x000b57fffe3483aa_light
+    to: 'off'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x000b57fffe3483aa_light
+    service: input_boolean.turn_off
+  mode: single
+- id: '1598392792265'
+  alias: ha start - status control - co light
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/0x000b57fffe3483aa/availability
+    payload: online
+  condition: []
+  action:
+  - service: automation.turn_off
+    data: {}
+    entity_id: automation.ha_start_co_light
+  - condition: state
+    entity_id: light.0x000b57fffe3483aa_light
+    state: 'off'
+  - service: light.turn_off
+    data: {}
+    entity_id: light.0x000b57fffe3483aa_light
+  mode: single
+- id: '1598402022343'
+  alias: homekit - light
+  description: ''
+  trigger:
+  - entity_id: light.0x14b457fffe75e1c5_light
+    platform: state
+  - entity_id: light.0x000b57fffe3483aa_light
+    platform: state
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.0x14b457fffe75e1c5_light
+        state: 'on'
+      sequence:
+      - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+        domain: light
+        entity_id: light.0x14b457fffe75e1c5_light
+        type: turn_on
+    - conditions:
+      - condition: state
+        entity_id: light.0x14b457fffe75e1c5_light
+        state: 'off'
+      sequence:
+      - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+        domain: light
+        entity_id: light.0x14b457fffe75e1c5_light
+        type: turn_off
+    - conditions:
+      - condition: state
+        entity_id: light.0x000b57fffe3483aa_light
+        state: 'on'
+      sequence:
+      - device_id: 032d813dafa5400ab38817c73fbe7a6b
+        domain: light
+        entity_id: light.0x000b57fffe3483aa_light
+        type: turn_on
+    - conditions:
+      - condition: state
+        entity_id: light.0x000b57fffe3483aa_light
+        state: 'off'
+      sequence:
+      - device_id: 032d813dafa5400ab38817c73fbe7a6b
+        domain: light
+        entity_id: light.0x000b57fffe3483aa_light
+        type: turn_off
+    default: []
+  mode: single
+- id: '1598624717093'
+  alias: fan - gece modu
+  description: ''
+  trigger:
+  - at: '22:30'
+    platform: time
+  condition: []
+  action:
+  - data:
+      temperature: 62
+    entity_id: climate.rpi_cooling_fan_controller
+    service: climate.set_temperature
+  mode: single
+- id: '1598624812927'
+  alias: fan - gunduz modu
+  description: ''
+  trigger:
+  - event: sunrise
+    platform: sun
+  condition: []
+  action:
+  - data:
+      temperature: 55
+    entity_id: climate.rpi_cooling_fan_controller
+    service: climate.set_temperature
+  mode: single
+- id: '1598696021841'
+  alias: kapi otomatigi - on
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 3d4d76baa1e7fe206db9aec3f1bf270b
+    entity_id: switch.kapi
+    domain: switch
+  condition: []
+  action:
+  - data:
+      message: Bina kapı kilidi açıldı
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1600379840338'
+  alias: actions - oo led
+  description: ''
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: ooled
+  condition: []
+  action:
+  - type: toggle
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  mode: single
+- id: '1600384759431'
+  alias: actions - co light
+  description: ''
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: yolight
+  condition: []
+  action:
+  - type: toggle
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  mode: single
+- id: '1600384799227'
+  alias: actions - kapi otomatigi
+  description: ''
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: kapiotomatigi
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 3d4d76baa1e7fe206db9aec3f1bf270b
+    entity_id: switch.kapi
+    domain: switch
+  mode: single
+- id: '1600385731496'
+  alias: actions - antre light
+  description: ''
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: antrelight
+  condition: []
+  action:
+  - type: toggle
+    device_id: 360b5e2a177011eb92c1cba85206b4a2
+    entity_id: switch.0x00158d000549fbab_switch_l1
+    domain: switch
+  mode: single
+- id: '1600385968685'
+  alias: actions - co priz
+  description: ''
+  trigger:
+  - platform: event
+    event_type: ios.action_fired
+    event_data:
+      actionName: copriz
+  condition: []
+  action:
+  - type: toggle
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l1
+    domain: switch
+  mode: single
+- id: '1601474713041'
+  alias: telefon priz - on off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_boolean.telefon_priz_on_off
+  condition:
+  - condition: state
+    entity_id: input_boolean.telefon_priz_ok
+    state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.telefon_priz_on_off
+        state: 'on'
+      sequence:
+      - type: turn_on
+        device_id: 91d566884fba4e68bb8d831d778b72c7
+        entity_id: switch.priz1
+        domain: switch
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.telefon_priz_on_off
+        state: 'off'
+      sequence:
+      - type: turn_off
+        device_id: 91d566884fba4e68bb8d831d778b72c7
+        entity_id: switch.priz1
+        domain: switch
+    default: []
+  mode: single
+- id: '1601477906082'
+  alias: ha start - telefon priz
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: automation.trigger
+    data: {}
+    entity_id: automation.telefon_priz_on_off
+  mode: single
+- id: '1601626291446'
+  alias: tel priz - 06:00
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:00
+  condition: []
+  action:
+  - type: turn_on
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l2
+    domain: switch
+  mode: single
+- id: '1601913022698'
+  alias: kapı zili - on
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 3d4d76baa1e7fe206db9aec3f1bf270b
+    entity_id: binary_sensor.kapi_zili
+    domain: binary_sensor
+  condition: []
+  action:
+  - data:
+      message: Kapi Zili Çalıyor...
+      data:
+        apns_headers:
+          apns-collapse-id: zil
+    service: notify.mobile_app_hakan
+  - data:
+      title: Kapı Zili Çalıyor...
+      message: ' '
+      data:
+        timeout: 2
+        tag: persistent
+        persistent: true
+        importance: high
+        icon_url: https://hknbskc.duckdns.org/local/bell-ring.png
+    service: notify.mobile_app_melahat
+  - delay: 00:00:25
+  - data:
+      message: Kapi Zili Çaldı
+      data:
+        apns_headers:
+          apns-collapse-id: zil
+    service: notify.mobile_app_hakan
+  - data:
+      message: clear_notification
+      data:
+        tag: persistent
+    service: notify.mobile_app_melahat
+  mode: single
+- id: '1602027253403'
+  alias: notify - kapi zili caldi
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.kapi_zili
+    to: 'off'
+    from: 'on'
+  condition: []
+  action:
+  - data:
+      message: Kapi Zili Çaldı
+      data:
+        apns_headers:
+          apns-collapse-id: zil
+    service: notify.mobile_app_hakan
+  mode: single
+- id: '1602077726531'
+  alias: notify - kapi zili caliyor (Duplicate)
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.kapi_zili
+    to: 'on'
+    from: 'off'
+  condition: []
+  action:
+  - data:
+      message: Kapi Zili Çalıyor...
+      data:
+        apns_headers:
+          apns-collapse-id: zil
+    service: notify.mobile_app_hakan
+  - data:
+      title: Kapı Zili Çalıyor...
+      message: ' '
+      data:
+        timeout: 2
+        tag: persistent
+        persistent: true
+        importance: high
+        icon_url: https://hknbskc.duckdns.org/local/bell-ring.png
+    service: notify.mobile_app_melahat
+  - delay: 00:00:20
+  - data:
+      message: Kapi Zili Çaldı
+      data:
+        apns_headers:
+          apns-collapse-id: zil
+    service: notify.mobile_app_hakan
+  - data:
+      message: clear_notification
+      data:
+        tag: persistent
+    service: notify.mobile_app_melahat
+  - condition: state
+    entity_id: light.0x14b457fffe75e1c5_light
+    state: hgg
+  mode: single
+- id: '1602086717757'
+  alias: antre - auto light on (Duplicate)
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.hareket1
+    platform: state
+    to: 'on'
+    for: '00:00:00.1'
+  - entity_id: binary_sensor.kapi
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: or
+    conditions:
+    - after: sunset
+      after_offset: -02:00
+      condition: sun
+    - before: sunrise
+      condition: sun
+  action:
+  - data: {}
+    entity_id: timer.antre_light
+    service: timer.start
+  - condition: device
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    domain: light
+    entity_id: light.0x14b457fffe75e1c5_light
+    type: is_off
+  - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    domain: light
+    entity_id: light.0x14b457fffe75e1c5_light
+    type: turn_on
+  - condition: state
+    entity_id: input_boolean.antre_light_auto
+    state: 'on'
+  mode: single
+- id: '1602087393785'
+  alias: antre button - on
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: 'on'
+    discovery_id: 0x14b457fffe7f3bb3 action_on
+  condition: []
+  action:
+  - service: timer.cancel
+    data: {}
+    entity_id: timer.antre_light
+  - service: timer.start
+    data: {}
+    entity_id: timer.antre_light_uzun
+  mode: single
+- id: '1602713945688'
+  alias: check timer - light last status
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /10
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  - condition: device
+    type: is_on
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    entity_id: light.0x14b457fffe75e1c5_light
+    domain: light
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: light.0x000b57fffe3483aa_light
+        state: 'off'
+      sequence:
+      - device_id: 032d813dafa5400ab38817c73fbe7a6b
+        domain: light
+        entity_id: light.0x000b57fffe3483aa_light
+        type: turn_off
+    - conditions:
+      - condition: state
+        entity_id: light.0x14b457fffe75e1c5_light
+        state: 'off'
+      sequence:
+      - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+        domain: light
+        entity_id: light.0x14b457fffe75e1c5_light
+        type: turn_off
+    default: []
+  mode: single
+- id: '1603031959595'
+  alias: ha start - status control - antre light
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/antre_light/availability
+    payload: online
+  condition: []
+  action:
+  - service: automation.turn_off
+    data: {}
+    entity_id: automation.ha_start_antre_light
+  - condition: state
+    entity_id: light.0x14b457fffe75e1c5_light
+    state: 'off'
+  - service: light.turn_off
+    data: {}
+    entity_id: light.0x14b457fffe75e1c5_light
+  mode: single
+- id: '1603042617812'
+  alias: armed_away - hareket
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.hareket1
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.home_alarm
+    state: armed_away
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      title: Alarm - Dışarıda
+      message: Antrede hareket algılandı
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+  mode: single
+- id: '1603213858345'
+  alias: kombi - up -
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.up_button
+    domain: binary_sensor
+  condition:
+  - condition: numeric_state
+    entity_id: climate.kombi
+    attribute: temperature
+    above: '17'
+    below: '30'
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: '{{states.climate.kombi.attributes.temperature + 0.5}}'
+      entity_id: climate.kombi
+    entity_id: climate.kombi
+  mode: queued
+  max: 10
+- id: '1603214747627'
+  alias: kombi - down
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_down_button
+    domain: binary_sensor
+  condition:
+  - condition: numeric_state
+    entity_id: climate.kombi
+    attribute: temperature
+    above: '17'
+    below: '100'
+  action:
+  - repeat:
+      while:
+      - condition: state
+        entity_id: binary_sensor.kombi_down_button
+        state: 'on'
+      - condition: numeric_state
+        entity_id: climate.kombi
+        above: '18'
+        attribute: temperature
+        below: '100'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: '{{states.climate.kombi.attributes.temperature - 0.5}}'
+          entity_id: climate.kombi
+        entity_id: climate.kombi
+      - delay: '00:00:00.7'
+  - condition: state
+    entity_id: sensor.kombi_temp
+    state: '18.0'
+  - service: python_script.set_state
+    data:
+      entity_id: sensor.kombi_temp
+      state: LOW
+  mode: single
+  max: 10
+- id: '1603218614541'
+  alias: kombi - toggle
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_up_button
+    domain: binary_sensor
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_down_button
+    domain: binary_sensor
+  condition: []
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+    entity_id: light.kombi_ekran_brightness
+  - delay: '1'
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.kombi_up_button
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.kombi_down_button
+      state: 'on'
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: climate.kombi
+        state: heat
+      sequence:
+      - service: climate.turn_off
+        data: {}
+        entity_id: climate.kombi
+    - conditions:
+      - condition: state
+        entity_id: climate.kombi
+        state: 'off'
+      sequence:
+      - service: climate.turn_on
+        data: {}
+        entity_id: climate.kombi
+    default: []
+  mode: single
+  max: 10
+- id: '1603224906765'
+  alias: kombi - off - down button
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.down_button
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+  condition: []
+  action:
+  - service: climate.turn_off
+    data: {}
+    entity_id: climate.kombi
+  mode: queued
+  max: 10
+- id: '1603225413241'
+  alias: kombi - up
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_up_button
+    domain: binary_sensor
+  condition:
+  - condition: numeric_state
+    entity_id: climate.kombi
+    attribute: temperature
+    above: '0'
+    below: '31'
+  action:
+  - repeat:
+      while:
+      - type: is_on
+        condition: device
+        device_id: 92cc98d312da11ebaa562d587774b4b2
+        entity_id: binary_sensor.kombi_up_button
+        domain: binary_sensor
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 0
+      - condition: numeric_state
+        entity_id: climate.kombi
+        above: '0'
+        attribute: temperature
+        below: '30'
+      sequence:
+      - delay: '00:00:00.7'
+      - service: climate.set_temperature
+        data:
+          temperature: '{{states.climate.kombi.attributes.temperature + 0.5}}'
+          entity_id: climate.kombi
+        entity_id: climate.kombi
+  - condition: state
+    entity_id: sensor.kombi_temp
+    state: '30.0'
+  - service: python_script.set_state
+    data:
+      entity_id: sensor.kombi_temp
+      state: HIGH
+  mode: single
+  max: 10
+- id: '1603284243535'
+  alias: kombi - auto screen brightness
+  description: ''
+  trigger:
+  - type: turned_off
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_up_button
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+  - type: turned_off
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_down_button
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+  condition:
+  - condition: and
+    conditions:
+    - type: is_off
+      condition: device
+      device_id: 92cc98d312da11ebaa562d587774b4b2
+      entity_id: binary_sensor.kombi_up_button
+      domain: binary_sensor
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 5
+    - type: is_off
+      condition: device
+      device_id: 92cc98d312da11ebaa562d587774b4b2
+      entity_id: binary_sensor.kombi_down_button
+      domain: binary_sensor
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 5
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 14
+    entity_id: light.kombi_ekran_brightness
+  mode: single
+  max: 10
+- id: '1603316503386'
+  alias: kombi - up (Duplicate)
+  description: ''
+  trigger:
+  - type: turned_on
+    platform: device
+    device_id: 92cc98d312da11ebaa562d587774b4b2
+    entity_id: binary_sensor.kombi_up_button
+    domain: binary_sensor
+  condition:
+  - condition: numeric_state
+    entity_id: climate.kombi
+    attribute: temperature
+    above: '0'
+    below: '31'
+  action:
+  - repeat:
+      while:
+      - condition: state
+        entity_id: binary_sensor.kombi_up_button
+        state: 'on'
+      - condition: numeric_state
+        entity_id: climate.kombi
+        above: '0'
+        attribute: temperature
+        below: '30'
+      sequence:
+      - service: climate.set_temperature
+        data:
+          temperature: '{{states.climate.kombi.attributes.temperature + 0.5}}'
+          entity_id: climate.kombi
+        entity_id: climate.kombi
+      - delay: '00:00:00.7'
+  - condition: state
+    entity_id: sensor.kombi_temp
+    state: '30.0'
+  - service: python_script.set_state
+    data:
+      entity_id: sensor.kombi_temp
+      state: HIGH
+  mode: single
+  max: 10
+- id: '1603333671323'
+  alias: zigbee online - status check
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/state
+    payload: online
+  condition: []
+  action:
+  - service: notify.persistent_notification
+    data:
+      title: zigbee2mqtt bridge state
+      message: Online
+  - service: script.0x000b57fffe3483aa_check
+    data: {}
+    entity_id: automation.ha_start_co_light
+  - service: script.0x00158d00007344a4_check
+    data: {}
+  - service: script.0x00158d0001310df5_check
+    data: {}
+    entity_id: light.0x14b457fffe75e1c5_light
+  - service: script.0x14b457fffe75e1c5_check
+    data: {}
+  mode: single
+- id: '1603717345299'
+  alias: kombi - termostat - input_boolean.kt_state update
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: climate.kombi_termostat
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: climate.kombi_termostat
+        state: heat
+      sequence:
+      - service: input_boolean.turn_on
+        data: {}
+        entity_id: input_boolean.kt_state
+    - conditions:
+      - condition: state
+        entity_id: climate.kombi_termostat
+        state: 'off'
+      sequence:
+      - service: input_boolean.turn_off
+        data: {}
+        entity_id: input_boolean.kt_state
+    default: []
+  mode: single
+- id: '1603719047518'
+  alias: kombi - termostat - input_boolean.kt_target_temp update
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: climate.kombi_termostat
+    attribute: temperature
+  condition: []
+  action:
+  - condition: not
+    conditions:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: climate.kombi_termostat
+        state: heat_cool
+      - condition: state
+        entity_id: climate.kombi_termostat
+        state: unavailable
+  - service: input_number.set_value
+    data:
+      value: '{{state_attr(''climate.kombi_termostat'', ''temperature'')}}'
+    entity_id: input_number.kt_target_temp
+  mode: single
+- id: '1603725960931'
+  alias: kombi - termostat - state update
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: climate.kombi_termostat
+    to: heat_cool
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: '{{states(''input_number.kt_target_temp'')}}'
+      hvac_mode: "{% if is_state('input_boolean.kt_state', 'on') %}\n  heat\n{% else\
+        \ %}\n  off\n{% endif %}\n"
+    entity_id: climate.kombi_termostat
+  mode: single
+- id: '1603733087570'
+  alias: co relay1 - temp control
+  description: ''
+  trigger:
+  - type: temperature
+    platform: device
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: sensor.0x00158d000549fade_temperature
+    domain: sensor
+    above: 35
+  condition: []
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      message: co relay1 sıcaklığı 35 derece
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+  mode: single
+- id: '1603735163858'
+  alias: status - kombi termostat
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: climate.kombi_termostat
+    to: unavailable
+    for: '60'
+  condition: []
+  action:
+  - service: notify.persistent_notification
+    data:
+      message: Kombi termostata erişilemiyor
+  mode: single
+- id: '1603740568149'
+  alias: ha start - kt update
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition:
+  - condition: state
+    entity_id: climate.kombi_termostat
+    state: heat_cool
+  action:
+  - service: climate.set_temperature
+    data:
+      entity_id: climate.kombi_termostat
+      temperature: '{{states(''input_number.kt_target_temp'')}}'
+      hvac_mode: "{% if is_state('input_boolean.kt_state', 'on') %}\n  heat\n{% else\
+        \ %}\n  'off'\n{% endif %}\n"
+    entity_id: climate.kombi_termostat
+  mode: single
+- id: '1603931893591'
+  alias: device_announce - 0x000b57fffe3483aa
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/event
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.type == "device_announce" and trigger.payload_json.data.ieee_address
+      == "0x000b57fffe3483aa" }}'
+  action:
+  - service: script.0x000b57fffe3483aa_check
+    data: {}
+  - service: notify.persistent_notification
+    data:
+      title: device_announce
+      message: 'friendly_name: {{ trigger.payload_json.data.friendly_name }}
+
+        ieee_address: {{ trigger.payload_json.data.ieee_address }}
+
+        '
+  mode: single
+- id: '1604014074700'
+  alias: 'antre timer uzun - finished '
+  description: ''
+  trigger:
+  - event_data:
+      entity_id: timer.antre_light_uzun
+    event_type: timer.finished
+    platform: event
+  condition: []
+  action:
+  - condition: state
+    entity_id: input_boolean.antre_light_auto
+    state: 'on'
+  - device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    domain: light
+    entity_id: light.0x14b457fffe75e1c5_light
+    type: turn_off
+  mode: single
+- id: '1604014567540'
+  alias: hareket - on
+  description: ''
+  trigger:
+  - entity_id: binary_sensor.hareket1
+    platform: state
+    to: 'on'
+    for: '00:00:00.1'
+  condition: []
+  action:
+  - service: script.antre_light_time_limited
+    data: {}
+  mode: single
+- id: '1604019537843'
+  alias: co relay1 - power up
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.0x00158d000549fade_power
+    below: '999'
+    above: '25'
+    for: '20'
+  condition: []
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      message: Prizi kontrol et
+      title: Ço komodin priz
+  mode: single
+- id: '1604068757863'
+  alias: device_announce - 0x14b457fffe75e1c5
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/event
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.type == "device_announce" and trigger.payload_json.data.ieee_address
+      == "0x14b457fffe75e1c5" }}'
+  action:
+  - service: notify.persistent_notification
+    data:
+      title: device_announce
+      message: 'friendly_name: {{ trigger.payload_json.data.friendly_name }}
+
+        ieee_address: {{ trigger.payload_json.data.ieee_address }}
+
+        '
+  - service: script.0x14b457fffe75e1c5_check
+    data: {}
+  mode: single
+- id: '1604354004014'
+  alias: oo priz - time - turn on
+  description: ''
+  trigger:
+  - platform: time
+    at: '12:00'
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604439621724'
+  alias: kombi - gece modu
+  description: ''
+  trigger:
+  - platform: time
+    at: 00:00
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 22
+      hvac_mode: heat
+    entity_id: climate.kombi_termostat
+  mode: single
+- id: '1604483999465'
+  alias: oo trust - 1 - up
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 0bad24e27d6a730f531888396dcb82f5
+    type: action
+    subtype: up-press
+    discovery_id: 0x00158d00013147bc action_up-press
+  condition: []
+  action:
+  - repeat:
+      while:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: sensor.0x00158d00013147bc_action
+          state: stop
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: '{{ (''%.0f''| format(states.light.oo_led.attributes.brightness
+            / 2.54) | int + 10) }}'
+        entity_id: light.oo_led
+  mode: single
+- id: '1604483999465'
+  alias: oo trust - 1 - on
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 0bad24e27d6a730f531888396dcb82f5
+    type: action
+    subtype: 'off'
+    discovery_id: 0x00158d00013147bc action_off
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  mode: single
+- id: '1604484068488'
+  alias: oo trust - 1 - off
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 0bad24e27d6a730f531888396dcb82f5
+    type: action
+    subtype: 'off'
+    discovery_id: 0x00158d00013147bc action_off
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 09b097b36d3aac04ed09e62e04e8fed6
+    entity_id: light.0x00158d0001310df5_light
+    domain: light
+  mode: single
+- id: '1604506511147'
+  alias: trust button - 149 - 5 - on
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "on"  and trigger.payload_json.action_group
+      == 149}}'
+  action:
+  - type: turn_on
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    entity_id: light.0x14b457fffe75e1c5_light
+    domain: light
+  mode: single
+- id: '1604509353844'
+  alias: oo trust - 1 - on
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 0bad24e27d6a730f531888396dcb82f5
+    type: action
+    subtype: 'on'
+    discovery_id: 0x00158d00013147bc action_on
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 09b097b36d3aac04ed09e62e04e8fed6
+    entity_id: light.0x00158d0001310df5_light
+    domain: light
+    brightness_pct: 100
+  mode: single
+- id: '1604513574588'
+  alias: trust button - 148 - 4 - on
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "on"  and trigger.payload_json.action_group
+      == 148}}'
+  action:
+  - type: turn_on
+    device_id: 09b097b36d3aac04ed09e62e04e8fed6
+    entity_id: light.0x00158d0001310df5_light
+    domain: light
+  mode: single
+- id: '1604513881537'
+  alias: trust button - 148 - 4 - off
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "off"  and trigger.payload_json.action_group
+      == 148}}'
+  action:
+  - type: turn_off
+    device_id: 09b097b36d3aac04ed09e62e04e8fed6
+    entity_id: light.0x00158d0001310df5_light
+    domain: light
+  mode: single
+- id: '1604513960633'
+  alias: trust button - 145 - 1 - on
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "on"  and trigger.payload_json.action_group
+      == 145}}'
+  action:
+  - type: turn_on
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  mode: single
+- id: '1604514067337'
+  alias: trust button - 145 - 1 - off
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "off"  and trigger.payload_json.action_group
+      == 145}}'
+  action:
+  - type: turn_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  mode: single
+- id: '1604514602316'
+  alias: trust button1 - 146 - up press
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "up-press"  and trigger.payload_json.action_group
+      == 146}}'
+  action:
+  - data:
+      direction: up
+      ha_lights:
+      - light.co_light
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604515238711'
+  alias: trust button1 - 146 - on
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "on"  and trigger.payload_json.action_group
+      == 146}}'
+  action:
+  - type: toggle
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  mode: single
+- id: '1604515288109'
+  alias: trust button1 - 146 - off
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "off"  and trigger.payload_json.action_group
+      == 146}}'
+  action:
+  - type: toggle
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l1
+    domain: switch
+  mode: single
+- id: '1604518916830'
+  alias: trust button - 149 - 5 - down press
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "down-press"  and trigger.payload_json.action_group
+      == 149}}'
+  action:
+  - data:
+      direction: down
+      ha_lights:
+      - light.0x14b457fffe75e1c5_light
+      lights:
+      - '0x14b457fffe75e1c5'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604518982263'
+  alias: trust button1 - 146 - stop
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "stop"  and trigger.payload_json.action_group
+      == 146}}'
+  action:
+  - data:
+      direction: stop
+      ha_lights:
+      - light.co_light
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604521230195'
+  alias: trust button - 149 - 5 - up press
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "up-press"  and trigger.payload_json.action_group
+      == 149}}'
+  action:
+  - data:
+      direction: up
+      ha_lights:
+      - light.0x14b457fffe75e1c5_light
+      lights:
+      - '0x14b457fffe75e1c5'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604521357399'
+  alias: trust button1 - 146 - down press
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "down-press"  and trigger.payload_json.action_group
+      == 146}}'
+  action:
+  - data:
+      direction: down
+      ha_lights:
+      - light.co_light
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604525651195'
+  alias: kombi - sabah modu
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 23.8
+      hvac_mode: heat
+    entity_id: climate.kombi_termostat
+  mode: single
+- id: '1604526260407'
+  alias: zigbee_publish_error
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/log
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.type == "zigbee_publish_error" }}'
+  action:
+  - service: notify.persistent_notification
+    data:
+      title: zigbee_publish_error
+      message: 'friendly_name: {{ trigger.payload_json.meta.friendly_name }}
+
+        message: {{ trigger.payload_json.message }}
+
+        '
+  mode: single
+- id: '1604567431936'
+  alias: trust button - 149 - 5 - stop
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "stop"  and trigger.payload_json.action_group
+      == 149}}'
+  action:
+  - data:
+      direction: stop
+      ha_lights:
+      - light.0x14b457fffe75e1c5_light
+      lights:
+      - '0x14b457fffe75e1c5'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604571834116'
+  alias: trust button - 145 - 1 - up-press
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "up-press"  and trigger.payload_json.action_group
+      == 145}}'
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: "{% set brightness_pct = (state_attr('light.oo_led', 'brightness')\
+        \ / 2.55) | int | round(0) %} {% set new_brightness = brightness_pct + 10\
+        \ %} {% if new_brightness < 90 %}\n  {{ new_brightness }}\n{% else %}\n  99\n\
+        {% endif %}\n"
+    entity_id: light.oo_led
+  mode: queued
+  max: 2
+- id: '1604572084453'
+  alias: trust button - 145 - 1 - down-press
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "down-press"  and trigger.payload_json.action_group
+      == 145}}'
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: "{% set brightness_pct = (state_attr('light.oo_led', 'brightness')\
+        \ / 2.55) | int | round(0) %} {% set new_brightness = brightness_pct - 10\
+        \ %} {% if new_brightness > 20 %}\n  {{ new_brightness }}\n{% else %}\n  10\n\
+        {% endif %}\n"
+    entity_id: light.oo_led
+  mode: queued
+  max: 4
+- id: '1604596882751'
+  alias: trust button - 149 - 5 - off
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "off"  and trigger.payload_json.action_group
+      == 149}}'
+  action:
+  - type: turn_off
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    entity_id: light.0x14b457fffe75e1c5_light
+    domain: light
+  mode: single
+- id: '1604603132012'
+  alias: trust 0003 light 0x00158d0001310df5 - on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x00158d0001310df5_light
+    to: 'on'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x00158d0001310df5_light
+    service: input_boolean.turn_on
+  mode: single
+- id: '1604603749436'
+  alias: trust 0003 light 0x00158d0001310df5 - off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x00158d0001310df5_light
+    to: 'off'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x00158d0001310df5_light
+    service: input_boolean.turn_off
+  mode: single
+- id: '1604668576536'
+  alias: ikea dimmer - brightness_move_up
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: dd3a80d8758e4dd98ad1fb089a261768
+    type: action
+    subtype: brightness_move_up
+    discovery_id: 0x000b57fffe2c313c action_brightness_move_up
+  condition: []
+  action:
+  - data:
+      direction: up
+      ha_lights:
+      - light.0x000b57fffe3483aa_light
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604669084226'
+  alias: ikea dimmer - brightness_move_down
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: dd3a80d8758e4dd98ad1fb089a261768
+    type: action
+    subtype: brightness_move_down
+    discovery_id: 0x000b57fffe2c313c action_brightness_move_down
+  condition: []
+  action:
+  - data:
+      direction: down
+      ha_lights:
+      - light.0x000b57fffe3483aa_light
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604669188668'
+  alias: ikea dimmer - brightness_stop
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: dd3a80d8758e4dd98ad1fb089a261768
+    type: action
+    subtype: brightness_stop
+    discovery_id: 0x000b57fffe2c313c action_brightness_stop
+  condition: []
+  action:
+  - data:
+      direction: stop
+      ha_lights:
+      - light.0x000b57fffe3483aa_light
+      lights:
+      - '0x000b57fffe3483aa'
+      speed: 80
+    service: python_script.zigbee_dimmer
+  mode: single
+- id: '1604671615294'
+  alias: ikea dimmer - on
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/ikea_dimmer
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "brightness_move_to_level"  and
+      trigger.payload_json.action_level == 255}}'
+  action:
+  - type: turn_on
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  mode: single
+- id: '1604673975127'
+  alias: ikea dimmer - off
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/ikea_dimmer
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "brightness_move_to_level"  and
+      trigger.payload_json.action_level == 0}}'
+  action:
+  - type: turn_off
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  mode: single
+- id: '1604686086396'
+  alias: trust button1 - 150 - on
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "on"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - type: toggle
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  mode: single
+- id: '1604686224984'
+  alias: trust button1 - 150 - off
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  - platform: state
+    entity_id: input_boolean.tum_isiklar_off
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "off"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - type: turn_off
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    entity_id: light.0x14b457fffe75e1c5_light
+    domain: light
+  - type: turn_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  - type: turn_off
+    device_id: 09b097b36d3aac04ed09e62e04e8fed6
+    entity_id: light.0x00158d0001310df5_light
+    domain: light
+  - type: turn_off
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  - type: turn_off
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l1
+    domain: switch
+  - type: turn_off
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604689040959'
+  alias: trust button1 - 150 - up
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "up-press"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - type: toggle
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  mode: single
+- id: '1604699560564'
+  alias: trust button1 - 150 - down
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "down-press"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - type: toggle
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604706638649'
+  alias: oo priz - turn off
+  description: ''
+  trigger:
+  - platform: time
+    at: '22:00'
+  condition: []
+  action:
+  - wait_for_trigger:
+    - platform: device
+      type: turned_off
+      device_id: 5a659a410c459654b7ccebe29dd50c27
+      entity_id: light.oo_led
+      domain: light
+    continue_on_timeout: true
+    timeout: 03:00
+  - type: turn_off
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604706722839'
+  alias: oo light - on
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604706722839'
+  alias: oo light - off
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604706926177'
+  alias: oo light - off
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1604739311142'
+  alias: device_announce - 0x00158d0001310df5
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/event
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.type == "device_announce" and trigger.payload_json.data.ieee_address
+      == "0x00158d0001310df5" }}'
+  action:
+  - service: script.0x00158d0001310df5_check
+    data: {}
+  - service: notify.persistent_notification
+    data:
+      title: device_announce
+      message: 'friendly_name: {{ trigger.payload_json.data.friendly_name }}
+
+        ieee_address: {{ trigger.payload_json.data.ieee_address }}
+
+        '
+  mode: single
+- id: '1604967902224'
+  alias: kombi - sabah modu 10:00
+  description: ''
+  trigger:
+  - platform: time
+    at: '10:00'
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 23
+      hvac_mode: heat
+    entity_id: climate.kombi_termostat
+  mode: single
+- id: '1604968212995'
+  alias: kombi - ev soğudu uyarısı
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.sicaklik
+    below: '22.2'
+  condition:
+  - condition: time
+    after: '11:00'
+    before: '23:00'
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      title: Kombi termostat
+      message: Ev soğudu kombiyi açmak ister misin?
+  mode: single
+- id: '1605308958267'
+  alias: co button - on - gece
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: 'on'
+    discovery_id: 0x14b457fffe5e2db6 action_on
+  condition:
+  - condition: time
+    after: 00:00
+    before: 06:00
+  action:
+  - condition: device
+    type: is_off
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  - type: turn_on
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+    brightness_pct: 10
+  mode: single
+- id: '1605309235280'
+  alias: co button - on(2.click) - gece
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 7c344f8dbe5745028d2853776326530e
+    type: action
+    subtype: 'on'
+    discovery_id: 0x14b457fffe5e2db6 action_on
+  condition: []
+  action:
+  - condition: device
+    type: is_on
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  - type: turn_on
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+    brightness_pct: 60
+  mode: single
+- id: '1605383398913'
+  alias: trust button1 - 150 - up - tv
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "up-press"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - service: script.55q60t_channelup
+    data: {}
+  mode: single
+- id: '1605383480606'
+  alias: trust button1 - 150 - on - tv
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "on"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - service: script.55q60t_power
+    data: {}
+  mode: single
+- id: '1605383654584'
+  alias: trust button1 - 150 - off - tv
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "off"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - service: script.55q60t_key_tv
+    data: {}
+  mode: single
+- id: '1605383780264'
+  alias: trust button1 - 150 - down - tv
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/trust - button
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.action == "down-press"  and trigger.payload_json.action_group
+      == 150}}'
+  action:
+  - service: script.55q60t_channeldown
+    data: {}
+  mode: single
+- id: '1605543480230'
+  alias: kombi screen - on
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: 362ffa7e165011ebbac0e1e28fd8b34b
+    entity_id: light.kombi_termostat_screen
+    domain: light
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.persistent_notification
+    data:
+      message: Kombinin ekranı açık kaldı
+  - type: turn_off
+    device_id: 362ffa7e165011ebbac0e1e28fd8b34b
+    entity_id: light.kombi_termostat_screen
+    domain: light
+  mode: single
+- id: '1605653277485'
+  alias: kombi - sabah modu 10:00 (Duplicate)
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:00
+  condition: []
+  action:
+  - service: climate.set_temperature
+    data:
+      temperature: 29
+      hvac_mode: heat
+    entity_id: climate.kombi_termostat
+  mode: single
+- id: '1605794888148'
+  alias: device_announce button - 0x14b457fffe75e1c5
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/event
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.type == "device_announce" and trigger.payload_json.data.ieee_address
+      == "0x14b457fffe75e1c5" }}'
+  action:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.0x14b457fffe75e1c5_light
+        state: 'on'
+      sequence:
+      - type: turn_off
+        device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+        entity_id: light.0x14b457fffe75e1c5_light
+        domain: light
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.0x14b457fffe75e1c5_light
+        state: 'off'
+      sequence:
+      - type: turn_on
+        device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+        entity_id: light.0x14b457fffe75e1c5_light
+        domain: light
+    default: []
+  mode: single
+- id: '1605806974054'
+  alias: antre button - on (Duplicate)
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: 'on'
+    discovery_id: 0x14b457fffe7f3bb3 action_on
+  condition: []
+  action:
+  - type: turn_on
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1605807162882'
+  alias: antre button - off (Duplicate)
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: 'off'
+    discovery_id: 0x14b457fffe7f3bb3 action_off
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 91d566884fba4e68bb8d831d778b72c7
+    entity_id: switch.priz1
+    domain: switch
+  mode: single
+- id: '1605807453851'
+  alias: antre button - up (Duplicate)
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: brightness_move_up
+    discovery_id: 0x14b457fffe7f3bb3 action_brightness_move_up
+  condition: []
+  action:
+  - service: script.55q60t_power
+    data: {}
+    entity_id: media_player.samsung_tv
+  mode: single
+- id: '1605808472813'
+  alias: antre button - down (Duplicate)
+  description: ''
+  trigger:
+  - platform: device
+    domain: mqtt
+    device_id: 11091e15d3ef46ea9a6104d98c11eec0
+    type: action
+    subtype: brightness_move_down
+    discovery_id: 0x14b457fffe7f3bb3 action_brightness_move_down
+  condition: []
+  action:
+  - data: {}
+    service: script.55q60t_key_tv
+    entity_id: media_player.samsung_tv
+  mode: single
+- id: '1605965151727'
+  alias: antre relay1 - temp control
+  description: ''
+  trigger:
+  - type: temperature
+    platform: device
+    device_id: 360b5e2a177011eb92c1cba85206b4a2
+    entity_id: sensor.0x00158d000549fbab_temperature
+    domain: sensor
+    above: 35
+  condition: []
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      message: Antre Relay sıcaklığı 35 derece
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+  mode: single
+- id: '1605970989133'
+  alias: hol light 0x14b457fffe75e1c5 - on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x14b457fffe75e1c5_light
+    to: 'on'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x14b457fffe75e1c5_light
+    service: input_boolean.turn_on
+  mode: single
+- id: '1605971069629'
+  alias: hol light 0x14b457fffe75e1c5 - off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x14b457fffe75e1c5_light
+    to: 'off'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x14b457fffe75e1c5_light
+    service: input_boolean.turn_off
+  mode: single
+- id: '1606602735250'
+  alias: co button - light state update
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.0x14b457fffe5e2db6_action
+  condition: []
+  action:
+  - service: mqtt.publish
+    data_template:
+      topic: zigbee2mqtt/0x000b57fffe3483aa/get
+      payload: '{"state": ""}'
+  mode: single
+- id: '1606604429344'
+  alias: device_announce - 0x00158d00007344a4
+  description: ''
+  trigger:
+  - platform: mqtt
+    topic: zigbee2mqtt/bridge/event
+  condition:
+  - condition: template
+    value_template: '{{ trigger.payload_json.type == "device_announce" and trigger.payload_json.data.ieee_address
+      == "0x00158d00007344a4" }}'
+  action:
+  - service: script.0x00158d00007344a4_check
+    data: {}
+  - service: notify.persistent_notification
+    data:
+      title: device_announce
+      message: 'friendly_name: {{ trigger.payload_json.data.friendly_name }}
+
+        ieee_address: {{ trigger.payload_json.data.ieee_address }}
+
+        '
+  mode: single
+- id: '1606605208846'
+  alias: trust 1507 f light 0x00158d00007344a4_light - on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x00158d00007344a4_light
+    to: 'on'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x00158d00007344a4_light
+    service: input_boolean.turn_on
+  mode: single
+- id: '1606605271171'
+  alias: trust 1507 f light 0x00158d00007344a4_light - off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: light.0x00158d00007344a4_light
+    to: 'off'
+  condition: []
+  action:
+  - data: {}
+    entity_id: input_boolean.0x00158d00007344a4_light
+    service: input_boolean.turn_off
+  mode: single

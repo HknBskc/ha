@@ -1,0 +1,199 @@
+#default_config:
+logbook:
+hassio:
+config:
+history:
+api:
+system_health:
+mobile_app:
+python_script:
+sun:
+#map:
+
+#samsungtv_smart:
+#  - platform: samsungtv_tizen
+#  - host: 192.168.0.2
+#    mac: 5C:C1:D7:EC:7B:42
+#    device_name: "Samsung tv"
+#    api_key: 5c8a6d2c-a4ad-43df-89ba-f3353e8990ad
+#    device_id: 6175a477-1cc0-7d2e-46f2-f2ff0231f109
+#    show_channel_number: True
+#    channel_list: '{"TRT 1":"1","TRT HABER":"2","NTV":"3","A HABER":"4","HABER TURK":"5","STAR TV":"6","ATV":"7","KANAL D":"8","SHOW":"9","TV8":"10","FOX TV":"11","TLC":"12","DMAX":"13","NAT GEO":"14","DiSCOVERY":"15"}'
+#    show_logos: "blue-color"
+#    app_list: '{"YouTube": "111299001912", "Netflix": "11101200001"}'
+ #   app_list: '{"Youtube": "111299001912/9Ur5IzDKqV.TizenYouTube", "Netflix": "11101200001/org.tizen.netflix-app"}'
+
+logger:
+  default: info
+
+homeassistant:
+  name: Hakan
+  latitude: !secret lati
+  longitude: !secret longi
+  unit_system: metric
+  time_zone: Europe/Istanbul
+  customize: !include customize.yaml
+  external_url: !secret duckdns_url_s
+  internal_url: http://homeassistant.local:8123/
+
+http:
+#  server_port: !secret port
+#  ssl_certificate: /ssl/fullchain.pem
+#  ssl_key: /ssl/privkey.pem
+ # ip_ban_enabled: true
+ # login_attempts_threshold: 9
+ 
+#duckdns:
+  #domain: !secret duckdns_url
+ # access_token: !secret duckdns_token
+
+
+timer:
+  antre_light:
+    name: Antre Timer
+    duration: 15
+    
+#telegram_bot:
+  #- platform: polling
+  #  api_key: 917567212:AAEFH5UpjmjE2Wpj76bB1qIZo_PBEi2jAns
+  #  allowed_chat_ids:
+  #    - 905890991
+      
+#notify:
+ # - name: telegram
+  #  platform: telegram
+   # chat_id: 905890991
+
+  #- name: WhatsApp
+  #  platform: command_line
+  #  command: 'wget $(cat) -O /dev/null'
+    
+input_select:
+input_text:
+input_number:
+input_datetime:
+input_boolean:
+
+alarm_control_panel:
+  - platform: manual
+    name: Home Alarm
+    arming_time: 2 # alarm kurulma süresi
+    delay_time: 1
+    trigger_time: 10
+    disarmed:
+      trigger_time: 0
+    armed_home:
+      arming_time: 0
+      delay_time: 0
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+ios: !include ios.yaml
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+climate: !include climate.yaml
+binary_sensor: !include binary_sensor.yaml
+sensor: !include sensor.yaml
+
+recorder:
+#  db_url: !secret db_url
+  include:
+    entities:
+     # - sensor.tasmota_sht_sht3x_0x44_temperature
+     # - sensor.tasmota_sht_sht3x_0x44_humidity
+      - alarm_control_panel.home_alarm
+      - light.oo_led
+      - switch.kapi
+      - binary_sensor.kapi
+      - binary_sensor.kapi_kilidi
+      - binary_sensor.kapi_zili
+      - climate.kombi_termostat
+      - sensor.cpu_sicaklik
+      - light.0x000b57fffe3483aa_light
+      - light.0x14b457fffe75e1c5_light
+      - binary_sensor.hareket1
+      - switch.priz1
+      - sensor.sicaklik
+      - sensor.nem
+      - sensor.kombi_termostat_humidity # mu
+      - sensor.0x00158d0005487abf_humidity # co
+      - sensor.0x00158d0005781fd0_humidity # oo
+      - sensor.kombi_termostat_temperature # mu
+      - sensor.0x00158d0005487abf_temperature # co
+      - sensor.0x00158d0005781fd0_temperature # oo
+      - switch.0x00158d000549fade_switch_l1 # co yatak light
+      - switch.0x00158d000549fade_switch_l2 # oo priz
+  purge_keep_days: 14
+  
+homekit:
+  entity_config:
+    switch.priz1:
+      type: outlet
+    switch.0x00158d000549fade_switch_l2:
+      type: outlet
+  #  binary_sensor.kapi_kilidi:
+     # type: door
+   # binary_sensor.kapi_zili:
+   #   type: door
+  filter:
+    include_entities:
+    #  - sensor.tasmota_sht_sht3x_0x44_temperature
+    #  - sensor.tasmota_sht_sht3x_0x44_humidity
+      - alarm_control_panel.home_alarm
+      - light.oo_led
+      #- switch.kapi_otomatigi
+      - switch.kapi
+      - binary_sensor.kapi
+      - binary_sensor.kapi_kilidi
+      - binary_sensor.kapi_zili
+      - climate.kombi_termostat
+      - climate.rpi_cooling_fan_controller
+      - light.0x000b57fffe3483aa_light
+      - light.0x14b457fffe75e1c5_light
+      - binary_sensor.hareket1
+      - switch.priz1
+      - script.ha_restart
+      - sensor.sicaklik
+      - sensor.nem
+      - sensor.kombi_termostat_humidity
+      - sensor.0x00158d0005487abf_humidity
+      - sensor.0x00158d0005781fd0_humidity
+      - sensor.kombi_termostat_temperature
+      - sensor.0x00158d0005487abf_temperature
+      - sensor.0x00158d0005781fd0_temperature
+      - switch.0x00158d000549fade_switch_l1
+      - switch.0x00158d000549fade_switch_l2
+      - media_player.samsung_tv_q60t
+      - media_player.samsung_tv_remote
+      - media_player.samsung_tv_55q60t
+    #  - device_tracker.hakan
+    #  - sensor.hakan_battery_level
+   #   - sensor.hakan_battery_state
+      
+     # - input_boolean.antre_light_status
+      #- input_boolean.yo_light_status
+
+#lovelace:
+ # mode: yaml
+ 
+
+switch:
+  - platform: rpi_gpio
+    invert_logic: false
+    ports:
+      14: ondort # cpu fan
+          
+          
+
+
+
+
+
+

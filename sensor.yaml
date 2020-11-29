@@ -1,0 +1,74 @@
+- platform: template
+  sensors:
+    last_boot_date:
+      friendly_name: Last Boot
+      value_template: >
+       {{ as_timestamp(states('sensor.last_boot')) | timestamp_custom('%H:%M, %d %B %A') }}
+  
+- platform: systemmonitor
+  resources:
+  - type: disk_use_percent
+    arg: /
+  - type: disk_use
+    arg: /
+  - type: disk_free
+    arg: /
+  - type: memory_use_percent
+  - type: memory_use
+  - type: memory_free
+  - type: processor_use
+  - type: last_boot
+    
+- platform: command_line
+  name: CPU Sıcaklık
+  command: "cat /sys/class/thermal/thermal_zone0/temp"
+  unit_of_measurement: "°C"
+  value_template: '{{ value | multiply(0.001) | round(1) }}'
+  scan_interval: 5
+
+- platform: mqtt
+  name: Bridge state
+  state_topic: "zigbee2mqtt/bridge/state"
+  icon: mdi:router-wireless
+
+        
+#- platform: template
+#  sensors:
+#    kombi_temp:
+#      value_template: "{{states.climate.kombi.attributes.temperature}}"
+
+
+- platform: "mqtt"
+  name: "trust_button1_action_group"
+  state_topic: "zigbee2mqtt/trust - button"
+  availability_topic: "zigbee2mqtt/bridge/state"
+  value_template: "{{ value_json.action_group }}"
+- platform: "mqtt"
+  name: "trust_action"
+  state_topic: "zigbee2mqtt/trust - button/action"
+  availability_topic: "zigbee2mqtt/bridge/state"
+
+
+
+- platform: min_max
+  name: Nem
+  type: mean
+  entity_ids:
+   # - sensor.kombi_termostat_humidity # mu
+    - sensor.0x00158d0005487abf_humidity # co
+    - sensor.0x00158d0005781fd0_humidity # oo
+    
+    
+    
+- platform: min_max
+  name: Sıcaklık
+  type: mean
+  entity_ids:
+    #- input_number.temp1
+    #- input_number.temp2
+   # - sensor.kombi_termostat_temperature # mu
+    - sensor.0x00158d0005487abf_temperature # co
+    - sensor.0x00158d0005781fd0_temperature # oo
+    
+    
+    

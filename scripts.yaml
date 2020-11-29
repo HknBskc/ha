@@ -1,0 +1,403 @@
+ha_restart:
+  alias: Ha Restart
+  mode: single
+  sequence:
+  - data: {}
+    service: homeassistant.restart
+alarm_home:
+  alias: alarm - home
+  mode: single
+  sequence:
+  - data: {}
+    entity_id: alarm_control_panel.home_alarm
+    service: alarm_control_panel.alarm_arm_home
+alarm_ev_disi:
+  alias: alarm - ev disi
+  mode: single
+  sequence:
+  - data: {}
+    entity_id: alarm_control_panel.home_alarm
+    service: alarm_control_panel.alarm_arm_away
+pil_az:
+  alias: hakan pil az
+  sequence:
+  - service: python_script.set_state
+    data:
+      entity_id: device_tracker.hakan
+      battery_level: 19
+  mode: single
+hakan_pil_20up:
+  alias: hakan pil normal
+  sequence:
+  - service: python_script.set_state
+    data:
+      entity_id: device_tracker.hakan
+      battery_level: 20
+  mode: single
+tel_priz_on:
+  alias: Tel priz - on
+  sequence:
+  - condition: state
+    entity_id: input_boolean.telefon_priz
+    state: 'on'
+  - type: turn_on
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l2
+    domain: switch
+  mode: single
+tel_priz_off_time:
+  alias: Tel priz - off - time
+  sequence:
+  - condition: state
+    entity_id: input_boolean.telefon_priz
+    state: 'on'
+  - condition: time
+    before: 06:00
+    after: 06:20
+  - type: turn_off
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l2
+    domain: switch
+  mode: single
+tel_priz_toggle:
+  alias: Tel priz - toggle
+  sequence:
+  - type: toggle
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l2
+    domain: switch
+  mode: single
+tel_priz_off:
+  alias: tel priz - off
+  sequence:
+  - condition: state
+    entity_id: input_boolean.telefon_priz
+    state: 'on'
+  - type: turn_off
+    device_id: f0e73aec17ab11ebb115336c446637d0
+    entity_id: switch.0x00158d000549fade_switch_l2
+    domain: switch
+  mode: single
+0x000b57fffe3483aa_check:
+  alias: state check - 0x000b57fffe3483aa_light
+  sequence:
+  - service: mqtt.publish
+    data_template:
+      topic: zigbee2mqtt/0x000b57fffe3483aa/get
+      payload: '{"state": ""}'
+  - delay: '1'
+  - condition: state
+    entity_id: input_boolean.0x000b57fffe3483aa_light
+    state: 'off'
+  - service: notify.persistent_notification
+    data:
+      title: Status check - turn off light
+      message: '{{ state_attr(''light.0x000b57fffe3483aa_light'', ''friendly_name'')
+        }}
+
+        0x000b57fffe3483aa_light
+
+        '
+  - service: light.turn_off
+    data: {}
+    entity_id: light.0x000b57fffe3483aa_light
+  mode: single
+  icon: mdi:head-lightbulb
+0x14b457fffe75e1c5_check:
+  alias: state check - 0x14b457fffe75e1c5_light
+  sequence:
+  - service: mqtt.publish
+    data_template:
+      topic: zigbee2mqtt/0x14b457fffe75e1c5/get
+      payload: '{"state": ""}'
+  - delay: '1'
+  - condition: state
+    entity_id: input_boolean.0x14b457fffe75e1c5_light
+    state: 'off'
+  - service: notify.persistent_notification
+    data:
+      title: Status check - turn off light
+      message: '{{ state_attr(''light.0x14b457fffe75e1c5_light'', ''friendly_name'')
+        }}
+
+        0x14b457fffe75e1c5_light
+
+        '
+  - service: light.turn_off
+    data: {}
+    entity_id: light.0x14b457fffe75e1c5_light
+  mode: single
+  icon: mdi:head-lightbulb
+antre_light_time_limited:
+  alias: antre_light - time limited
+  sequence:
+  - condition: state
+    entity_id: input_boolean.antre_light_auto
+    state: 'on'
+  - condition: or
+    conditions:
+    - after: sunset
+      after_offset: -02:00
+      condition: sun
+    - before: sunrise
+      condition: sun
+  - type: turn_on
+    device_id: 360b5e2a177011eb92c1cba85206b4a2
+    entity_id: switch.0x00158d000549fbab_switch_l1
+    domain: switch
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: timer.antre_light_uzun
+        state: idle
+      sequence:
+      - service: timer.start
+        data: {}
+        entity_id: timer.antre_light
+    - conditions:
+      - condition: state
+        entity_id: timer.antre_light
+        state: idle
+      sequence:
+      - service: timer.start
+        data: {}
+        entity_id: timer.antre_light_uzun
+    default: []
+  mode: single
+0x00158d0001310df5_check:
+  alias: state check - 0x00158d0001310df5_light
+  sequence:
+  - service: mqtt.publish
+    data_template:
+      topic: zigbee2mqtt/0x00158d0001310df5/get
+      payload: '{"state": ""}'
+  - delay: '1'
+  - condition: state
+    entity_id: input_boolean.0x00158d0001310df5_light
+    state: 'off'
+  - service: notify.persistent_notification
+    data:
+      title: Status check - turn off light
+      message: '{{ state_attr(''light.0x00158d0001310df5_light'', ''friendly_name'')
+        }}
+
+        0x00158d0001310df5_light
+
+        '
+  - service: light.turn_off
+    data: {}
+    entity_id: light.0x00158d0001310df5_light
+  mode: single
+  icon: mdi:head-lightbulb
+lights:
+  alias: Lights
+  sequence:
+  - type: turn_off
+    device_id: 5c0ed21d833b4796a2142aaa2bcd09e9
+    entity_id: light.0x14b457fffe75e1c5_light
+    domain: light
+  - type: turn_off
+    device_id: 09b097b36d3aac04ed09e62e04e8fed6
+    entity_id: light.0x00158d0001310df5_light
+    domain: light
+  - type: turn_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
+    domain: light
+  - type: turn_off
+    device_id: 032d813dafa5400ab38817c73fbe7a6b
+    entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  mode: single
+  icon: mdi:lightbulb-group-off
+55q60t_channelup:
+  alias: 55q60t - ChannelUp
+  sequence:
+  - service: media_player.media_next_track
+    data: {}
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:chevron-up
+55q60t_channeldown:
+  alias: 55q60t - ChannelDown
+  sequence:
+  - service: media_player.media_previous_track
+    data: {}
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:chevron-down
+55q60t_power:
+  alias: 55q60t - Power
+  sequence:
+  - service: media_player.toggle
+    data: {}
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:power
+55q60t_power_on:
+  alias: 55q60t - Power On
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_POWERON
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:power
+55q60t_st_volup:
+  alias: 55q60t - ST_VOLUP
+  sequence:
+  - service: media_player.volume_up
+    data: {}
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:volume-plus
+55q60t_st_voldown:
+  alias: 55q60t - ST_VOLDOWN
+  sequence:
+  - service: media_player.volume_down
+    data: {}
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:volume-minus
+55q60t_st_mute:
+  alias: 55q60t - ST_MUTE
+  sequence:
+  - service: media_player.volume_mute
+    data:
+      is_volume_muted: true
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:volume-mute
+55q60t_key_source:
+  alias: 55q60t - KEY_SOURCE
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_SOURCE
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:source-branch
+55q60t_key_enter:
+  alias: 55q60t - KEY_ENTER
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_ENTER
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:checkbox-blank-circle-outline
+55q60t_key_up:
+  alias: 55q60t - KEY_UP
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_UP
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:chevron-up
+55q60t_key_down:
+  alias: 55q60t - KEY_DOWN
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_DOWN
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:chevron-down
+55q60t_key_left:
+  alias: 55q60t - KEY_LEFT
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_LEFT
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:chevron-left
+55q60t_key_right:
+  alias: 55q60t - KEY_RIGHT
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_RIGHT
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: queued
+  max: 4
+  icon: mdi:chevron-right
+55q60t_key_return:
+  alias: 55q60t - KEY_RETURN
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_RETURN
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:subdirectory-arrow-left
+55q60t_key_home:
+  alias: 55q60t - KEY_HOME
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_HOME
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:home-variant
+q60t_key_prech:
+  alias: 55q60t - KEY_PRECH
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: KEY_PRECH
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:rotate-3d-variant
+55q60t_key_tv:
+  alias: 55q60t - tv mode
+  sequence:
+  - service: media_player.select_source
+    data:
+      source: digitalTv
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:monitor
+0x00158d00007344a4_check:
+  alias: state check - 0x00158d00007344a4_light
+  sequence:
+  - service: mqtt.publish
+    data_template:
+      topic: zigbee2mqtt/0x00158d00007344a4/get
+      payload: '{"state": ""}'
+  - delay: '1'
+  - condition: state
+    entity_id: input_boolean.0x00158d00007344a4_light
+    state: 'off'
+  - service: notify.persistent_notification
+    data:
+      title: Status check - turn off light
+      message: '{{ state_attr(''light.0x00158d00007344a4_light'', ''friendly_name'')
+        }}
+
+        0x00158d00007344a4_light
+
+        '
+  - service: light.turn_off
+    data: {}
+    entity_id: light.0x00158d00007344a4_light
+  mode: single
+  icon: mdi:head-lightbulb
