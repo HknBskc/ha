@@ -1,0 +1,31 @@
+#- platform: generic_thermostat
+#  name: Kombi
+#  heater: switch.kombi_relay
+#  target_sensor: sensor.sicaklik
+#  min_temp: 18
+#  max_temp: 30
+#  ac_mode: false
+#  target_temp: 22
+#  cold_tolerance: 0.3
+#  hot_tolerance: 0.3
+#  min_cycle_duration:
+#    minutes: 2
+#  keep_alive:
+#    minutes: 5
+#  initial_hvac_mode: "off"
+  
+- platform: generic_thermostat
+  name: RPI Cooling Fan Controller
+  heater: switch.ondort
+  target_sensor: sensor.cpu_sicaklik
+  min_temp: 40
+  max_temp: 80
+  ac_mode: true
+  target_temp: 55
+  cold_tolerance: 0.1
+  hot_tolerance: 0.1
+  min_cycle_duration:
+    seconds: 30
+  keep_alive:
+    minutes: 5
+  initial_hvac_mode: "cool"

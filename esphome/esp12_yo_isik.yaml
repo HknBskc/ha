@@ -1,0 +1,76 @@
+esphome:
+  name: esp12_yo_isik
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "0ev"
+  password: !secret wifi_pass
+  
+  manual_ip:
+    static_ip: 192.168.0.22
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+  ap:
+    ssid: "Esp12 2 Fallback Hotspot"
+    password: !secret pass
+
+captive_portal:
+
+web_server:
+  port: 80
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret pass
+
+ota:
+  password: !secret pass
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO14
+      mode: INPUT_PULLUP
+      inverted: True
+    filters:
+      - delayed_on: 20ms
+      - delayed_off: 20ms
+      - delayed_on_off: 20ms
+    id: button_1
+    on_click:
+      - min_length: 20ms
+        max_length: 700ms
+        then:
+          - light.toggle: light_1
+      - min_length: 700ms
+        max_length: 4000ms
+        then:
+          - switch.turn_on: buzzer
+          - delay: 500ms
+          - switch.turn_off: buzzer
+          - delay: 20s
+          - light.turn_off: light_1
+ 
+
+switch:
+  - platform: gpio
+    pin: GPIO12
+    name: "Buzzer"
+    id: buzzer
+    
+output:
+  - platform: gpio
+    pin: GPIO5
+    id: relay_1
+    
+
+light:
+  - platform: binary
+    name: "yo ışık"
+    id: light_1
+    output: relay_1

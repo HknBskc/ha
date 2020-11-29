@@ -1,0 +1,81 @@
+sensor.last_boot:
+  friendly_name: Last Boot1
+  device_class: timestamp
+  icon: mdi:clock
+switch.ondort:
+  friendly_name: CPU Fan
+  icon: mdi:fan
+light.oo_led:
+  icon: mdi:wall-sconce-flat
+  friendly_name: Led
+script.1594713260086:
+  icon: mdi:refresh
+climate.kombi_termostat:
+  icon: mdi:fire
+  friendly_name: Termostat
+climate.rpi_cooling_fan_controller:
+  friendly_name: RPI Termostat
+  icon: mdi:raspberry-pi
+binary_sensor.kapi_kilidi:
+  device_class: door
+  friendly_name: Kapı Kilidi
+switch.kapi:
+  icon: mdi:key-variant
+  friendly_name: Kapı Otomatiği
+sensor.cpu_sicaklik:
+  icon: mdi:temperature-celsius
+binary_sensor.hareket1:
+  device_class: motion
+  friendly_name: Hareket
+switch.priz1:
+  device_class: outlet
+  friendly_name: Priz
+  icon: mdi:power-socket-de
+input_number.hakan_iphone_pil:
+  device_class: battery
+  editable: true
+  battery state: dbee
+binary_sensor.kapi_zili:
+  icon: mdi:bell
+  friendly_name: Kapı Zili
+sensor.nem:
+  device_class: humidity
+  icon: mdi:water-percent
+sensor.sicaklik:
+  icon: mdi:temperature-celsius
+sensor.kombi_termostat_humidity:
+  device_class: humidity
+  friendly_name: Mutfak - Nem
+sensor.kombi_termostat_temperature:
+  icon: mdi:temperature-celsius
+  friendly_name: Mutfak - Sıcaklık
+sensor.0x00158d0005487abf_temperature:
+  icon: mdi:temperature-celsius
+  friendly_name: Oturma Odası - Sıcaklık
+sensor.0x00158d0005781fd0_temperature:
+  icon: mdi:temperature-celsius
+  friendly_name: Çocuk Odası - Sıcaklık
+binary_sensor.kapi:
+  device_class: door
+  friendly_name: Kapı
+light.0x000b57fffe3483aa_light:
+  friendly_name: Işık
+light.0x14b457fffe75e1c5_light:
+  friendly_name: Işık
+light.0x00158d0001310df5_light:
+  friendly_name: Işık
+switch.0x00158d000549fade_switch_l2:
+  friendly_name: Komodin Priz
+  device_class: outlet
+  icon: mdi:power-socket-de
+switch.0x00158d000549fade_switch_l1:
+  friendly_name: Komodin Işık
+  icon: mdi:track-light
+light.0x00158d0000733dac_light:
+  friendly_name: trust 5302 f
+light.0x00158d00007344a4_light:
+  friendly_name: trust 1507 f
+switch.0x00158d000549fbab_switch_l1:
+  friendly_name: Antre - Işık
+sensor.0x00158d0005487abf_humidity:
+  friendly_name: Oturma Odası - Nem

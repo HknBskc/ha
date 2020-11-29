@@ -1,0 +1,52 @@
+actions:
+  - name: antrelight
+    background_color: "#469f87"
+    label:
+      text: "Antre Işık"
+      color: "#fefffe"
+    icon:
+      icon: lightbulb
+      color: "#fefffe"
+  - name: kapiotomatigi
+    background_color: "#df5156"
+    label:
+      text: "Kapı Otomatiği"
+      color: "#fefffe"
+    icon:
+      icon: lock-open-variant
+      color: "#fefffe"
+  - name: ooled
+    background_color: "#e26a8b"
+    label:
+      text: "Oturma odası led"
+      color: "#fefffe"
+    icon:
+      icon: wall-sconce-flat
+      color: "#fefffe"
+  - name: yolight
+    background_color: "#d4962a"
+    label:
+      text: "Yatak odası ışık"
+      color: "#fefffe"
+    icon:
+      icon: lightbulb
+      color: "#fefffe"
+  - name: yopriz
+    background_color: "#589aaf"
+    label:
+      text: "Yatak odası priz"
+      color: "#fefffe"
+    icon:
+      icon: power-socket-de
+      color: "#fefffe"
+push:
+  categories:
+    - name: isik
+      identifier: 'isik'
+      actions:
+        - identifier: 'ANTRE_LIGHT'
+          title: 'Antre ışığını kapat'
+        - identifier: 'OO_LIGHT'
+          title: 'Oturma odası ledini kapat'
+        - identifier: 'YO_LIGHT'
+          title: 'Yatak odası ışığını kapat'

@@ -1,0 +1,293 @@
+esphome:
+  name: kombi_termostat
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "0ev"
+  password: !secret wifi_pass
+  fast_connect: true
+  
+  manual_ip:
+    static_ip: 192.168.0.9
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+  ap:
+    ssid: "kombi_termostat Fallback Hotspot"
+    password: !secret pass
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  password: !secret pass
+
+ota:
+  password: !secret pass
+  
+web_server:
+  port: 80
+
+
+#interval:
+ # - interval: 5s
+  #  then:
+   #   - logger.log:
+      #    format: "sıcaklık2 %.1f - mode %.1f - away %.1f"
+     #     args: [ 'id(temp).state' , 'id(kombi_termostat).mode','id(kombi_termostat).away' ]
+   
+
+binary_sensor:
+  - platform: gpio
+    internal: true
+    pin:
+      number: 14
+      mode: INPUT_PULLUP
+      inverted: true
+    id: "button1"
+    on_press:
+      - script.stop: screen_auto_off
+      - script.execute: screen_on
+      - if:
+          condition:
+            lambda: 'return !id(kombi_termostat).mode;'
+          then:
+            - climate.control:
+                id: kombi_termostat
+                mode: "HEAT"
+          else:
+            - climate.control:
+                id: kombi_termostat
+                mode: "OFF"
+      - script.execute: screen_auto_off
+    
+
+climate:
+  - platform: thermostat
+    sensor: temp
+    name: "Kombi Termostat"
+    id: kombi_termostat
+    default_target_temperature_low: 20 °C
+    hysteresis: 0.1
+    visual:
+      min_temperature: 18 °C
+      max_temperature: 30 °C
+      temperature_step: 0.2 °C
+    heat_action:
+      - switch.turn_on: kombi_relay
+      - script.execute: screen_on
+      - script.execute: screen_auto_off
+    idle_action:
+      - switch.turn_off: kombi_relay
+      - script.execute: screen_on
+      - script.execute: screen_auto_off
+
+switch:
+  - platform: restart
+    name: "Kombi Termostat - Restart"
+    id: kombi_restart
+  - platform: gpio
+    pin: 16
+    name: "Kombi Termostat - Relay"
+    id: kombi_relay
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+    - script.execute: screen_on
+    - script.execute: screen_auto_off
+    
+sensor:
+  - platform: sht3xd
+    temperature:
+      name: "Kombi Termostat - Temperature"
+      id: temp_local
+      filters:
+        - calibrate_linear:
+            - 0.0 -> 0.0
+            - 25.0 -> 23
+    humidity:
+      name: "Kombi Termostat - Humidity"
+      id: humidity_local
+    address: 0x44
+    
+  - platform: homeassistant
+    id: temp_ha
+    entity_id: sensor.sicaklik
+    internal: true
+    on_value:
+      then:
+        - logger.log: "######### temp_ha to temp"
+        - lambda: |-
+            if (!isnan(id(temp_ha).state)) {
+              id(temp).publish_state(id(temp_ha).state);
+            }
+            
+  - platform: homeassistant
+    id: humidity_ha
+    entity_id: sensor.nem
+    internal: true
+    
+  - platform: homeassistant
+    id: oo_temp_ha
+    entity_id: sensor.0x00158d0005781fd0_temperature
+    internal: true
+    
+  - platform: homeassistant
+    id: co_temp_ha
+    entity_id: sensor.0x00158d0005487abf_temperature
+    internal: true
+    
+    
+  - platform: template
+    name: "Temperature Sensor"
+    id: temp
+    internal: true
+    lambda: |-
+      if (id(temp_ha).has_state()) {
+        return !isnan(id(temp_ha).state) ? id(temp_ha).state: id(temp_local).state;
+      }else{
+        return id(temp_local).state;
+      }
+
+
+
+  - platform: rotary_encoder
+    id: rotary_encoder_1
+    internal: true
+    resolution: 1
+    pin_a: 13
+    pin_b: 12
+    on_value:
+      - script.stop: screen_auto_off
+      - script.execute: screen_on
+      - if:
+          condition:
+            and:
+              - sensor.in_range:
+                  id: rotary_encoder_1
+                  above: 1
+              - light.is_on: kombi_ekran
+              - lambda: 'return id(kombi_termostat).target_temperature < 30.0;'
+          then:
+          - logger.log: "up"
+          - climate.control:
+              id: kombi_termostat
+              mode: HEAT
+              target_temperature: !lambda |-
+                return id(kombi_termostat).target_temperature + 0.2;
+      - if:
+          condition:
+            and:
+              - sensor.in_range:
+                  id: rotary_encoder_1
+                  below: -1
+              - light.is_on: kombi_ekran
+              - lambda: 'return id(kombi_termostat).target_temperature > 18.0;'
+          then:
+          - logger.log: "down"
+          - climate.control:
+              id: kombi_termostat
+              mode: HEAT
+              target_temperature: !lambda |-
+                return id(kombi_termostat).target_temperature - 0.2;
+      - sensor.rotary_encoder.set_value:
+          id: rotary_encoder_1
+          value: 0
+      - script.execute: screen_auto_off
+          
+    
+script:
+  - id: screen_auto_off
+    mode: restart
+    then:
+      - logger.log: "######### script.execute: screen_auto_off"
+      - delay: 30s
+      - light.turn_off:
+          id: kombi_ekran
+  - id: screen_on
+    mode: restart
+    then:
+      - logger.log: "######### script.execute: screen_on"
+      - light.turn_on:
+          id: kombi_ekran
+          brightness: 90%
+          
+light:
+  - platform: monochromatic
+    name: "Kombi Termostat - Screen"
+    id: kombi_ekran
+    output: oled_bc
+    restore_mode: ALWAYS_ON
+    on_turn_on:
+    - script.execute: screen_auto_off
+    on_turn_off:
+    - script.stop: screen_auto_off
+    
+output:
+  - platform: template
+    id: oled_bc
+    type: float
+    write_action:
+      then:
+        - lambda: id(ekran).set_brightness(state);
+font:
+  - file: 'pixelmix.ttf'
+    id: pixel8
+    size: 8
+  - file: 'pixelmix.ttf'
+    id: pixel16
+    size: 16
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas_big
+    size: 76
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas_big_small
+    size: 57
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas22
+    size: 25
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas17
+    size: 17
+  - file: 'windows_command_prompt.ttf'
+    id: wcp
+    size: 16
+
+image:
+  - file: "fire.png"
+    id: fire
+    resize: 24x24
+  - file: "flame.png"
+    id: flame
+    resize: 12x15
+    
+i2c:
+  sda: 4
+  scl: 5
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    id: ekran
+    brightness: 0.9
+    lambda: |-
+    
+      if (id(kombi_termostat).mode) {
+        it.printf(-3, 60, id(bebas_big), TextAlign::BASELINE_LEFT, "%.1f", id(kombi_termostat).target_temperature);
+      } else {
+        it.printf(64, 48, id(bebas_big_small), TextAlign::BASELINE_CENTER, "KAPALI");
+      }
+      if (!isnan(id(temp).state)) {
+        it.printf(127, 59, id(pixel8), TextAlign::BASELINE_RIGHT, "%.1f", id(temp).state);
+      }else{
+        it.printf(127, 59, id(pixel8), TextAlign::BASELINE_RIGHT, "--.-");
+      }
+      
+      if (id(kombi_relay).state) {
+        it.image(111, 20, id(flame));
+      }
+      

@@ -201,12 +201,12 @@ lights:
     entity_id: light.0x00158d0001310df5_light
     domain: light
   - type: turn_off
-    device_id: 5a659a410c459654b7ccebe29dd50c27
-    entity_id: light.oo_led
-    domain: light
-  - type: turn_off
     device_id: 032d813dafa5400ab38817c73fbe7a6b
     entity_id: light.0x000b57fffe3483aa_light
+    domain: light
+  - type: turn_off
+    device_id: 5a659a410c459654b7ccebe29dd50c27
+    entity_id: light.oo_led
     domain: light
   mode: single
   icon: mdi:lightbulb-group-off

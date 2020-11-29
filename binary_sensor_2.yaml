@@ -1,0 +1,30 @@
+- platform: mqtt
+  name: "Kapı"
+  device_class: door
+  state_topic: "tele/kapi/SENSOR"
+  value_template: "{{ value_json.Switch1 }}"
+  availability_topic: "tele/kapi/LWT"
+  payload_available: "Online"
+  payload_not_available: "Offline"
+  
+- platform: mqtt
+  name: "Kapı Kilidi"
+  device_class: door
+  state_topic: "tele/kapi/SENSOR"
+  value_template: "{{ value_json.Switch2 }}"
+  availability_topic: "tele/kapi/LWT"
+  payload_available: "Online"
+  payload_not_available: "Offline"
+
+- platform: mqtt
+  name: "Kapı Zili"
+# device_class: door
+  state_topic: "tele/kapi/SENSOR"
+  value_template: "{{ value_json.Switch3 }}"
+  availability_topic: "tele/kapi/LWT"
+  payload_available: "Online"
+  payload_not_available: "Offline"
+  
+  
+  
+  

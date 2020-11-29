@@ -1,0 +1,269 @@
+esphome:
+  name: nodemcu_ekran
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: "0ev"
+  password: !secret wifi_pass
+  
+  manual_ip:
+    static_ip: 192.168.0.3
+    gateway: 192.168.0.1
+    subnet: 255.255.255.0
+
+  ap:
+    ssid: "kombi_termostat Fallback Hotspot"
+    password: !secret pass
+
+captive_portal:
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+#interval:
+#  - interval: 10s
+#    then:
+#      - logger.log:
+#          format: "ha status %.1f - sıcaklık %.1f - sıcaklık2 %.1f"
+#          args: [ 'id(ha_status).state', 'id(temp_ha).state', 'id(temp).state' ]
+      
+
+binary_sensor:
+  - platform: gpio
+    pin: D5
+    name: "Up Button"
+    id: up_button
+    internal: true
+    on_press:
+      - logger.log: "######### up button"
+      - script.stop: screen_auto_off
+      - script.execute: screen_on
+      - while:
+          condition:
+            and:
+              - binary_sensor.is_on: up_button
+              - binary_sensor.is_off: down_button
+              - light.is_on: kombi_ekran
+              - lambda: 'return id(kombi_termostat).target_temperature < 30.0;'
+          then:
+          - climate.control:
+              id: kombi_termostat
+              mode: HEAT
+              target_temperature: !lambda |-
+                return id(kombi_termostat).target_temperature + 0.5;
+          - logger.log:
+              format: "######### set target temp %.1f"
+              args: ["id(kombi_termostat).target_temperature"]
+          - delay: 700ms
+    on_multi_click:
+    - timing:
+      - ON for at least 0.7s
+      then:
+      - if:
+          condition:
+          - binary_sensor.is_on: down_button
+          - lambda: 'return id(kombi_termostat).mode;'
+          then:
+            climate.control:
+              id: kombi_termostat
+              mode: "OFF"
+    - timing:
+      - OFF for at least 2s
+      then:
+      - script.execute: screen_auto_off
+              
+  - platform: gpio
+    pin: D6
+    name: "Down Button"
+    id: down_button
+    internal: true
+    on_press:
+      - while:
+          condition:
+            and:
+              - binary_sensor.is_on: down_button
+              - binary_sensor.is_off: up_button
+              - light.is_on: kombi_ekran
+              - lambda: 'return id(kombi_termostat).target_temperature > 18.0;'
+          then:
+          - logger.log: "######### down button"
+          - climate.control:
+              id: kombi_termostat
+              mode: HEAT
+              target_temperature: !lambda |-
+                return id(kombi_termostat).target_temperature - 0.5;
+          - logger.log:
+              format: "######### target temp %.1f"
+              args: id(kombi_termostat).target_temperature
+          - delay: 700ms
+    
+
+climate:
+  - platform: thermostat
+    sensor: temp
+    name: "Kombi Termostat"
+    id: kombi_termostat
+    default_target_temperature_low: 23 °C
+    visual:
+      min_temperature: 18 °C
+      max_temperature: 30 °C
+      temperature_step: 0.5 °C
+    heat_action:
+      - switch.turn_on: kombi_relay
+      - script.stop: screen_auto_off
+      - script.execute: screen_on
+      - script.execute: screen_auto_off
+    idle_action:
+      - switch.turn_off: kombi_relay
+      - script.stop: screen_auto_off
+      - script.execute: screen_on
+      - script.execute: screen_auto_off
+
+switch:
+  - platform: restart
+    name: "Kombi Termostat - Restart"
+    id: kombi_restart
+  - platform: gpio
+    pin: D4
+    name: "Kombi Termostat - Relay"
+    id: kombi_relay
+    
+sensor:
+  - platform: sht3xd
+    temperature:
+      name: "Kombi Sıcaklık Sensörü - Temperature"
+      id: temp_local
+    humidity:
+      name: "Kombi Sıcaklık Sensörü - Humidity"
+      id: humidity_local
+    address: 0x44
+    
+  - platform: homeassistant
+    id: temp_ha
+    entity_id: sensor.sicaklik
+    internal: true
+    on_value:
+      then:
+        - logger.log: "######### temp_ha to temp"
+        - lambda: 'id(temp).publish_state(id(temp_ha).state);'
+            
+  - platform: homeassistant
+    id: humidity_ha
+    entity_id: sensor.nem
+    internal: true
+    
+  - platform: template
+    name: "Temperature Sensor"
+    id: temp
+    internal: true
+    lambda: |-
+      return id(temp_ha).has_state() ? id(temp_ha).state: id(temp_local).state;
+      
+script:
+  - id: screen_auto_off
+    mode: restart
+    then:
+      - logger.log: "######### script.execute: screen_auto_off"
+      - delay: 8s
+      - light.turn_on:
+          id: kombi_ekran
+          brightness: 20%
+      - delay: 18s
+      - light.turn_off:
+          id: kombi_ekran
+  - id: screen_on
+    mode: restart
+    then:
+      - logger.log: "######### script.execute: screen_on"
+      - light.turn_on:
+          id: kombi_ekran
+          brightness: 90%
+          
+light:
+  - platform: monochromatic
+    name: "Kombi Termostat - Screen"
+    id: kombi_ekran
+    output: oled_bc
+    restore_mode: ALWAYS_ON
+    on_turn_on:
+    - script.execute: screen_auto_off
+    
+output:
+  - platform: template
+    id: oled_bc
+    type: float
+    write_action:
+      then:
+        - lambda: id(ekran).set_brightness(state);
+font:
+  - file: 'pixelmix.ttf'
+    id: pixel8
+    size: 8
+  - file: 'pixelmix.ttf'
+    id: pixel16
+    size: 16
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas_big
+    size: 53
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas22
+    size: 25
+  - file: 'BebasNeue-Regular.ttf'
+    id: bebas17
+    size: 17
+  - file: 'windows_command_prompt.ttf'
+    id: wcp
+    size: 16
+
+image:
+  - file: "fire.png"
+    id: fire
+    resize: 24x24
+  - file: "fire36.png"
+    id: fire36
+    resize: 36x36
+    
+i2c:
+  sda: D2
+  scl: D1
+
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    id: ekran
+    brightness: 0.9
+    lambda: |-
+    
+      if (id(kombi_termostat).mode) {
+        it.printf(0, 39, id(bebas_big), TextAlign::BASELINE_LEFT, "%.1f", id(kombi_termostat).target_temperature);
+      } else {
+        it.printf(0, 39, id(bebas_big), TextAlign::BASELINE_LEFT, "OFF");
+      }
+      
+      if (!isnan(id(temp).state)) {
+        it.printf(0, 64, id(bebas22), TextAlign::BASELINE_LEFT, "%.1f°", id(temp).state);
+      }else{
+        it.printf(0, 64, id(bebas22), TextAlign::BASELINE_LEFT, "OFF");
+      }
+      
+      if (id(kombi_relay).state) {
+        it.image(51, 43, id(fire));
+      }
+      
+      it.printf(127, 10, id(wcp), TextAlign::BASELINE_RIGHT, "Oo  26.7");
+      it.printf(127, 25, id(wcp), TextAlign::BASELINE_RIGHT, "Yo  28.4");
+      it.printf(127, 40, id(wcp), TextAlign::BASELINE_RIGHT, "Mu  %.1f", id(temp_local).state);
+      
+      if (!id(temp_ha).has_state() && !id(humidity_ha).has_state()) {
+        it.printf(124, 60, id(wcp), TextAlign::BASELINE_RIGHT, "HA OFF");
+      } else if (id(humidity_ha).has_state() && !isnan(id(humidity_ha).state)) {
+        it.printf(127, 64, id(bebas22), TextAlign::BASELINE_RIGHT, "%.1f   ", id(humidity_ha).state);
+        it.printf(127, 59, id(bebas17), TextAlign::BASELINE_RIGHT, "%%");
+      }
