@@ -412,6 +412,16 @@ q60t_key_prech:
   mode: queued
   max: 4
   icon: mdi:chevron-up
+55q60t_st_ch9:
+  alias: 55q60t - ST_CH9
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: ST_CH9
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:monitor
 55q60t_st_ch10:
   alias: 55q60t - ST_CH10
   sequence:
@@ -420,6 +430,55 @@ q60t_key_prech:
       media_content_id: ST_CH10
       media_content_type: send_key
     entity_id: media_player.samsung_tv
-  mode: queued
-  max: 4
+  mode: single
+  icon: mdi:monitor
+55q60t_st_ch11:
+  alias: 55q60t - ST_CH11
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: ST_CH11
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:monitor
+  55q60t_st_ch12:
+  alias: 55q60t - ST_CH12
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: ST_CH12
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:monitor
+  55q60t_st_ch13:
+  alias: 55q60t - ST_CH13
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: ST_CH13
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:monitor
+  55q60t_st_ch14:
+  alias: 55q60t - ST_CH14
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: ST_CH14
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
+  icon: mdi:monitor
+  55q60t_st_ch15:
+  alias: 55q60t - ST_CH15
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: ST_CH15
+      media_content_type: send_key
+    entity_id: media_player.samsung_tv
+  mode: single
   icon: mdi:monitor
