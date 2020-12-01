@@ -76,6 +76,6 @@ light.0x00158d0000733dac_light:
 light.0x00158d00007344a4_light:
   friendly_name: trust 1507 f
 switch.0x00158d000549fbab_switch_l1:
-  friendly_name: Antre - Işık
+  friendly_name: Işık
 sensor.0x00158d0005487abf_humidity:
   friendly_name: Oturma Odası - Nem

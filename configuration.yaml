@@ -173,6 +173,11 @@ homekit:
       - media_player.samsung_tv_q60t
       - media_player.samsung_tv_remote
       - media_player.samsung_tv_55q60t
+      - media_player.samsung_tv
+      - input_number.tv_ses
+      - script.55q60t_channelup
+      - script.55q60t_channeldown
+      - script.55q60t_key_9
     #  - device_tracker.hakan
     #  - sensor.hakan_battery_level
    #   - sensor.hakan_battery_state
