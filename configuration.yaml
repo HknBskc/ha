@@ -10,6 +10,8 @@ python_script:
 sun:
 #map:
 
+
+
 #samsungtv_smart:
 #  - platform: samsungtv_tizen
 #  - host: 192.168.0.2
@@ -21,7 +23,7 @@ sun:
 #    channel_list: '{"TRT 1":"1","TRT HABER":"2","NTV":"3","A HABER":"4","HABER TURK":"5","STAR TV":"6","ATV":"7","KANAL D":"8","SHOW":"9","TV8":"10","FOX TV":"11","TLC":"12","DMAX":"13","NAT GEO":"14","DiSCOVERY":"15"}'
 #    show_logos: "blue-color"
 #    app_list: '{"YouTube": "111299001912", "Netflix": "11101200001"}'
- #   app_list: '{"Youtube": "111299001912/9Ur5IzDKqV.TizenYouTube", "Netflix": "11101200001/org.tizen.netflix-app"}'
+#    app_list: '{"Youtube": "111299001912/9Ur5IzDKqV.TizenYouTube", "Netflix": "11101200001/org.tizen.netflix-app"}'
 
 logger:
   default: info
