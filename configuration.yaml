@@ -17,8 +17,8 @@ sun:
 #  - host: 192.168.0.2
 #    mac: 5C:C1:D7:EC:7B:42
 #    device_name: "Samsung tv"
-#    api_key: 5c8a6d2c-a4ad-43df-89ba-f3353e8990ad
-#    device_id: 6175a477-1cc0-7d2e-46f2-f2ff0231f109
+#    api_key: !secret samsungtv_smart_api_key
+#    device_id: !secret samsungtv_smart_device_id
 #    show_channel_number: True
 #    channel_list: '{"TRT 1":"1","TRT HABER":"2","NTV":"3","A HABER":"4","HABER TURK":"5","STAR TV":"6","ATV":"7","KANAL D":"8","SHOW":"9","TV8":"10","FOX TV":"11","TLC":"12","DMAX":"13","NAT GEO":"14","DiSCOVERY":"15"}'
 #    show_logos: "blue-color"
@@ -57,14 +57,14 @@ timer:
     
 #telegram_bot:
   #- platform: polling
-  #  api_key: 917567212:AAEFH5UpjmjE2Wpj76bB1qIZo_PBEi2jAns
+  #  api_key: !secret telegram_bot_api_key
   #  allowed_chat_ids:
-  #    - 905890991
+  #    - !secret telegram_bot_allowed_chat_ids
       
 #notify:
  # - name: telegram
   #  platform: telegram
-   # chat_id: 905890991
+   # chat_id: !secret telegram_bot_allowed_chat_ids
 
   #- name: WhatsApp
   #  platform: command_line
