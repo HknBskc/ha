@@ -3096,3 +3096,29 @@
     domain: light
     brightness_pct: 80
   mode: single
+- id: '1606821335379'
+  alias: rpi power
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.rpi_power_status
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      message: Rpi power:b
+  mode: single
+- id: '1606821342222'
+  alias: rpi power
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.rpi_power_status
+    to: 'on'
+  condition: []
+  action:
+  - service: notify.mobile_app_hakan
+    data:
+      message: Rpi power:b
+  mode: single
