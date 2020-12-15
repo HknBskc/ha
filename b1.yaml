@@ -1,19 +1,7 @@
 blueprint:
   name: Z2M - IKEA 2 button remote
   description: |
-    Control lights with an IKEA five button remote (the round ones).
-
-    The middle "on" button, toggle the lights on/off to the last set brightness
-    (unless the force brightness is toggled on in the blueprint).
-
-    Dim up/down buttons will change the brightness smoothly and can be pressed
-    and hold until the brightness is satisfactory.
-
-    The "left" and "right" buttons can be assigned to a short and long button
-    press action. This allows you to assign, e.g., a scene or anything else.
-
-    This is a fork of @Frenck's blueprint for ZHA found here https://community.home-assistant.io/t/zha-ikea-five-button-remote-for-lights/253804
-
+    Control lights with an IKEA 2 button remote
   domain: automation
   input:
     remote:
@@ -48,27 +36,27 @@ blueprint:
           mode: slider
           step: 1
           unit_of_measurement: "%"
-    button_left_short:
-      name: Left button - short press
-      description: Action to run on short left button press
+    button_on:
+      name: On button - short press
+      description: Action to run on short on button press
       default: []
       selector:
         action:
-    button_left_long:
-      name: Left button - long press
-      description: Action to run on long left button press
+    button_off:
+      name: Off button - short press
+      description: Action to run on short off button press
       default: []
       selector:
         action:
-    button_right_short:
-      name: Right button - short press
-      description: Action to run on short right button press
+    brightness_move_up:
+      name: On button - long press
+      description: Action to run on long on button press
       default: []
       selector:
         action:
-    button_right_long:
-      name: Right button - long press
-      description: Action to run on long right button press
+    brightness_move_down:
+      name: Off button - long press
+      description: Action to run on long off button press
       default: []
       selector:
         action:
@@ -89,33 +77,32 @@ action:
       command: "{{ trigger.to_state.state }}"
   - choose:
       - conditions:
-          - "{{ command == 'toggle' }}"
+          - "{{ command == 'button_on' }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
                 sequence:
-                  - service: light.toggle
+                  - service: light.turn_on
                     target: !input light
                     data:
                       transition: 1
                       brightness_pct: !input brightness
             default:
-              - service: light.toggle
+              - service: light.turn_on
                 target: !input light
                 data:
                   transition: 1
-
+                  
       - conditions:
-          - "{{ command == 'brightness_up_click' }}"
+          - "{{ command == 'button_off' }}"
         sequence:
           - service: light.turn_on
             target: !input light
             data:
-              brightness_step_pct: 10
               transition: 1
 
       - conditions:
-          - "{{ command == 'brightness_up_hold' }}"
+          - "{{ command == 'brightness_move_up' }}"
         sequence:
           - repeat:
               until:
@@ -132,16 +119,7 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ command == 'brightness_down_click' }}"
-        sequence:
-          - service: light.turn_on
-            target: !input light
-            data:
-              brightness_step_pct: -10
-              transition: 1
-
-      - conditions:
-          - "{{ command == 'brightness_down_hold' }}"
+          - "{{ command == 'brightness_move_down' }}"
         sequence:
           - repeat:
               until:
@@ -158,17 +136,17 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ command == 'arrow_left_click' }}"
-        sequence: !input button_left_short
+          - "{{ command == 'on' }}"
+        sequence: !input button_on
 
       - conditions:
-          - "{{ command == 'arrow_left_hold' }}"
-        sequence: !input button_left_long
+          - "{{ command == 'off' }}"
+        sequence: !input button_off
 
       - conditions:
-          - "{{ command == 'arrow_right_click' }}"
-        sequence: !input button_right_short
+          - "{{ command == 'brightness_move_up' }}"
+        sequence: !input brightness_move_up
 
       - conditions:
-          - "{{ command == 'arrow_right_hold' }}"
-        sequence: !input button_right_long
+          - "{{ command == 'brightness_move_down' }}"
+        sequence: !input brightness_move_down
