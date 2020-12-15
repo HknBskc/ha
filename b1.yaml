@@ -72,7 +72,7 @@ action:
       - conditions:
           - "{{ trigger.to_state.state == 'off' }}"
         sequence:
-          - service: light.turn_on
+          - service: light.turn_off
             target: !input light
             data:
               transition: 1
