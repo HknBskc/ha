@@ -53,7 +53,7 @@ action:
       command: "{{ trigger.to_state.state }}"
   - choose:
       - conditions:
-          - "{{ trigger.to_state.state == 'button_on' }}"
+          - "{{ trigger.to_state.state == 'on' }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -70,7 +70,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ trigger.to_state.state == 'button_off' }}"
+          - "{{ trigger.to_state.state == 'off' }}"
         sequence:
           - service: light.turn_on
             target: !input light
