@@ -36,30 +36,6 @@ blueprint:
           mode: slider
           step: 1
           unit_of_measurement: "%"
-    button_on:
-      name: On button - short press
-      description: Action to run on short on button press
-      default: []
-      selector:
-        action:
-    button_off:
-      name: Off button - short press
-      description: Action to run on short off button press
-      default: []
-      selector:
-        action:
-    brightness_move_up:
-      name: On button - long press
-      description: Action to run on long on button press
-      default: []
-      selector:
-        action:
-    brightness_move_down:
-      name: Off button - long press
-      description: Action to run on long off button press
-      default: []
-      selector:
-        action:
 
 mode: restart
 max_exceeded: silent
@@ -77,7 +53,7 @@ action:
       command: "{{ trigger.to_state.state }}"
   - choose:
       - conditions:
-          - "{{ command == 'button_on' }}"
+          - "{{ trigger.to_state.state == 'button_on' }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -94,7 +70,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ command == 'button_off' }}"
+          - "{{ trigger.to_state.state == 'button_off' }}"
         sequence:
           - service: light.turn_on
             target: !input light
@@ -102,7 +78,7 @@ action:
               transition: 1
 
       - conditions:
-          - "{{ command == 'brightness_move_up' }}"
+          - "{{ trigger.to_state.state == 'brightness_move_up' }}"
         sequence:
           - repeat:
               until:
@@ -119,7 +95,7 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ command == 'brightness_move_down' }}"
+          - "{{ trigger.to_state.state == 'brightness_move_down' }}"
         sequence:
           - repeat:
               until:
@@ -134,19 +110,3 @@ action:
                     transition: 1
                   target: !input light
                 - delay: '1'
-
-      - conditions:
-          - "{{ command == 'on' }}"
-        sequence: !input button_on
-
-      - conditions:
-          - "{{ command == 'off' }}"
-        sequence: !input button_off
-
-      - conditions:
-          - "{{ command == 'brightness_move_up' }}"
-        sequence: !input brightness_move_up
-
-      - conditions:
-          - "{{ command == 'brightness_move_down' }}"
-        sequence: !input brightness_move_down
