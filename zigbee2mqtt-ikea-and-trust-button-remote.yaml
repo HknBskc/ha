@@ -1,12 +1,12 @@
 blueprint:
-  name: Z2M - Trust and ikea remote
+  name: Z2M - ikea or trust button remote
   description: |
-    Control lights with an trust and ikea remote
+    Control lights with an ikea or trust remote
   domain: automation
   input:
     remote:
       name: Remote
-      description: TRUST and ikea remote to use
+      description: ikea or trust remote to use
       selector:
         entity:
           domain: sensor
