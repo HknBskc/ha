@@ -82,7 +82,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ b_state == 'off'}}"
+          - "{{ b_state == 'off' }}"
         sequence:
           - service: light.turn_off
             target: !input light
@@ -90,7 +90,7 @@ action:
               transition: 1
 
       - conditions:
-          - "{{ b_state == 'up-press'}}"
+          - "{{ b_state == 'up-press' }}"
         sequence:
           - repeat:
               until:
@@ -107,7 +107,7 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ b_state == 'down-press" }}"
+          - "{{ b_state == 'down-press' }}"
         sequence:
           - repeat:
               until:
