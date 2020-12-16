@@ -64,7 +64,7 @@ action:
       b_action: "{{ trigger.to_state.attributes.action_group }}"
   - choose:
       - conditions:
-          - "{{ b_state == 'on' or b_action == 150 }}"
+          - "{{ b_state == 'on' or b_action == action_group }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -81,7 +81,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ b_state == 'off' or b_action == 150 }}"
+          - "{{ b_state == 'off' or b_action == action_group }}"
         sequence:
           - service: light.turn_off
             target: !input light
@@ -89,7 +89,7 @@ action:
               transition: 1
 
       - conditions:
-          - "{{ trigger.to_state.state == 'brightness_move_up' or trigger.to_state.state == 'up-press' }}"
+          - "{{ b_state == 'up-press' or b_action == action_group }}"
         sequence:
           - repeat:
               until:
@@ -106,7 +106,7 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ trigger.to_state.state == 'brightness_move_down' or trigger.to_state.state == 'down-press' }}"
+          - "{{ b_state == 'down-press' or b_action == action_group }}"
         sequence:
           - repeat:
               until:
