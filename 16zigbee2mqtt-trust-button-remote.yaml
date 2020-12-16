@@ -64,7 +64,7 @@ action:
       b_action: "{{ trigger.to_state.attributes.action_group }}"
   - choose:
       - conditions:
-          - "{{ b_state == 'on' and b_action == '146' }}"
+          - "{{ b_action == !input action_group }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -81,7 +81,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ b_state == 'off' and b_action == '146' }}"
+          - "{{ b_state == 'off' and b_action == 146 }}"
         sequence:
           - service: light.turn_off
             target: !input light
