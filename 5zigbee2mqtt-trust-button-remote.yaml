@@ -64,8 +64,10 @@ action:
       b_action: "{{ trigger.to_state.attributes.action_group }}"
   - choose:
       - conditions:
-          - "{{ b_state == 'on' }}"
-          - "{{ b_action == 150 }}"
+          - condition: and
+            conditions:
+              - "{{ b_state == 'on' }}"
+              - "{{ b_action == 150 }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
