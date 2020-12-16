@@ -36,6 +36,16 @@ blueprint:
           mode: slider
           step: 1
           unit_of_measurement: "%"
+    action_group:
+      name: Action group
+      description: Action group
+      default: 50
+      selector:
+        number:
+          min: 145
+          max: 146
+          mode: slider
+          step: 1
 
 mode: restart
 max_exceeded: silent
