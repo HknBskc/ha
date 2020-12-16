@@ -81,8 +81,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ b_state == 'off'}}"
-          - "{{ b_action == 146 }}"
+          - "{{ b_state == 'off' or b_action == 150 }}"
         sequence:
           - service: light.turn_off
             target: !input light
