@@ -39,7 +39,7 @@ blueprint:
     action_group:
       name: Action group
       description: Action group
-      default: 50
+      default: 145
       selector:
         number:
           min: 145
@@ -63,7 +63,7 @@ action:
       command: "{{ trigger.to_state.state }}"
   - choose:
       - conditions:
-          - "{{ trigger.to_state.state == 'on' && trigger.to_state.attributes.action_group == 150 }}"
+          - "{{ (trigger.to_state.state == 'on' && trigger.to_state.attributes.action_group == 150) }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -80,7 +80,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ trigger.to_state.state == 'off' && trigger.to_state.attributes.action_group == 150 }}"
+          - "{{ trigger.to_state.attributes.action_group == 150 }}"
         sequence:
           - service: light.turn_off
             target: !input light
