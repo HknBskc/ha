@@ -56,7 +56,6 @@ variables:
 trigger:
   - platform: state
     entity_id: !input remote
-    attribute: action
 
 action:
   - variables:
@@ -64,10 +63,8 @@ action:
       b_action: "{{ trigger.to_state.attributes.action_group }}"
   - choose:
       - conditions:
-          - condition: and
-            conditions:
-              - "{{ b_state == 'on' }}"
-              - "{{ b_action == 150 }}"
+          - "{{ b_state == 'on' }}"
+          - "{{ b_action == 150 }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -90,6 +87,9 @@ action:
             target: !input light
             data:
               transition: 1
+          - service: notify.persistent_notification
+            data:
+              message: '{{ b_state }}'
 
       - conditions:
           - "{{ b_state == 'up-press' }}"
