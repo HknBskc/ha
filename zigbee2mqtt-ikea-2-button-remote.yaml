@@ -1,12 +1,12 @@
 blueprint:
-  name: Z2M - IKEA 2 button remote
+  name: Z2M - Trust remote
   description: |
-    Control lights with an IKEA 2 button remote
+    Control lights with an trust remote
   domain: automation
   input:
     remote:
       name: Remote
-      description: IKEA remote to use
+      description: TRUST remote to use
       selector:
         entity:
           domain: sensor
@@ -78,7 +78,7 @@ action:
               transition: 1
 
       - conditions:
-          - "{{ trigger.to_state.state == 'brightness_move_up' }}"
+          - "{{ trigger.to_state.state == 'brightness_move_up' or trigger.to_state.state == 'up-press'  }}"
         sequence:
           - repeat:
               until:
@@ -95,7 +95,7 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ trigger.to_state.state == 'brightness_move_down' }}"
+          - "{{ trigger.to_state.state == 'brightness_move_down' or trigger.to_state.state == 'down-press' }}"
         sequence:
           - repeat:
               until:
