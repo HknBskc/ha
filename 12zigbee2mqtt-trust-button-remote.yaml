@@ -52,6 +52,7 @@ max_exceeded: silent
 
 variables:
   force_brightness: !input force_brightness
+  b_action_s: !input action_group
 
 trigger:
   - platform: state
@@ -64,7 +65,7 @@ action:
       b_action: "{{ trigger.to_state.attributes.action_group }}"
   - choose:
       - conditions:
-          - "{{ b_state == 'on' or b_action == !input action_group }}"
+          - "{{ b_state == 'on' or b_action == b_action_s }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -81,7 +82,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ b_state == 'off' or b_action == !input action_group }}"
+          - "{{ b_state == 'off' or b_action == b_action_s }}"
         sequence:
           - service: light.turn_off
             target: !input light
@@ -89,7 +90,7 @@ action:
               transition: 1
 
       - conditions:
-          - "{{ b_state == 'up-press' or b_action == !input action_group }}"
+          - "{{ b_state == 'up-press' or b_action == b_action_s }}"
         sequence:
           - repeat:
               until:
