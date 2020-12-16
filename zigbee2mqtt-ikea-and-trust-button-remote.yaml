@@ -53,7 +53,7 @@ action:
       command: "{{ trigger.to_state.state }}"
   - choose:
       - conditions:
-          - "{{ trigger.to_state.state == 'off' && trigger.to_state.attributes.action_group == 150 }}"
+          - "{{ trigger.to_state.state == 'on' && trigger.to_state.attributes.action_group == 150 }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
