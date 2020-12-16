@@ -1,5 +1,5 @@
 blueprint:
-  name: Z2M -  Trust button remote 2
+  name: Z2M -  Trust button remote
   description: |
     Control lights with an trust remote
   domain: automation
@@ -52,6 +52,7 @@ max_exceeded: silent
 
 variables:
   force_brightness: !input force_brightness
+  action_group: !input action_group
 
 trigger:
   - platform: state
@@ -64,7 +65,7 @@ action:
   - choose:
       - conditions:
           - "{{ b_state == 'on' }}"
-          - "{{ b_action == 150 }}"
+          - "{{ b_action == action_group }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -82,17 +83,15 @@ action:
                   
       - conditions:
           - "{{ b_state == 'off' }}"
+          - "{{ b_action == action_group }}"
         sequence:
           - service: light.turn_off
             target: !input light
             data:
               transition: 1
-          - service: notify.persistent_notification
-            data:
-              message: '{{ b_state }}'
-
       - conditions:
           - "{{ b_state == 'up-press' }}"
+          - "{{ b_action == action_group }}"
         sequence:
           - repeat:
               until:
@@ -110,6 +109,7 @@ action:
 
       - conditions:
           - "{{ b_state == 'down-press' }}"
+          - "{{ b_action == action_group }}"
         sequence:
           - repeat:
               until:
@@ -124,3 +124,4 @@ action:
                     transition: 1
                   target: !input light
                 - delay: '1'
+                
