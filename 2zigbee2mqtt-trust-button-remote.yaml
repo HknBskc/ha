@@ -1,12 +1,12 @@
 blueprint:
-  name: Z2M - ikea or trust button remote
+  name: Z2M -  Trust button remote
   description: |
-    Control lights with an ikea or trust remote
+    Control lights with an trust remote
   domain: automation
   input:
     remote:
       name: Remote
-      description: ikea or trust remote to use
+      description: trust remote to use
       selector:
         entity:
           domain: sensor
@@ -43,7 +43,7 @@ blueprint:
       selector:
         number:
           min: 145
-          max: 146
+          max: 150
           mode: slider
           step: 1
 
@@ -80,7 +80,7 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ trigger.to_state.attributes.action_group == 150 }}"
+          - "{{ trigger.to_state.attributes.action_group == 146 }}"
         sequence:
           - service: light.turn_off
             target: !input light
