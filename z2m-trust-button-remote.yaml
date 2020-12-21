@@ -1,5 +1,5 @@
 blueprint:
-  name: Z2M -  Trust button remote
+  name: Z2M - Trust button remote
   description: |
     Control lights with an trust remote
   domain: automation
@@ -52,7 +52,7 @@ max_exceeded: silent
 
 variables:
   force_brightness: !input force_brightness
-  selected_action_group: !input action_group
+  action_group_1: !input action_group
 
 trigger:
   - platform: state
@@ -60,12 +60,12 @@ trigger:
 
 action:
   - variables:
-      state: "{{ trigger.to_state.state }}"
-      action_group: "{{ trigger.to_state.attributes.action_group }}"
+      b_state: "{{ trigger.to_state.state }}"
+      b_action: "{{ trigger.to_state.attributes.action_group }}"
   - choose:
       - conditions:
-          - "{{ state == 'on' }}"
-          - "{{ action_group == selected_action_group }}"
+          - "{{ b_state == 'on' }}"
+          - "{{ b_action == action_group_1 }}"
         sequence:
           - choose:
               - conditions: "{{ force_brightness }}"
@@ -82,16 +82,16 @@ action:
                   transition: 1
                   
       - conditions:
-          - "{{ state == 'off' }}"
-          - "{{ action_group == selected_action_group }}"
+          - "{{ b_state == 'off' }}"
+          - "{{ b_action == action_group_1 }}"
         sequence:
           - service: light.turn_off
             target: !input light
             data:
               transition: 1
       - conditions:
-          - "{{ state == 'up-press' }}"
-          - "{{ action_group == selected_action_group }}"
+          - "{{ b_state == 'up-press' }}"
+          - "{{ b_action == action_group_1 }}"
         sequence:
           - repeat:
               until:
@@ -108,8 +108,8 @@ action:
                 - delay: '1'
 
       - conditions:
-          - "{{ state == 'down-press' }}"
-          - "{{ action_group == selected_action_group }}"
+          - "{{ b_state == 'down-press' }}"
+          - "{{ b_action == action_group_1 }}"
         sequence:
           - repeat:
               until:
@@ -124,4 +124,3 @@ action:
                     transition: 1
                   target: !input light
                 - delay: '1'
-                
