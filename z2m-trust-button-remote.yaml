@@ -57,6 +57,7 @@ variables:
 trigger:
   - platform: state
     entity_id: !input remote
+    attribute: action
 
 action:
   - variables:
