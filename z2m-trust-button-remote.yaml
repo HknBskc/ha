@@ -52,7 +52,7 @@ max_exceeded: silent
 
 trigger:
   - platform: state
-    entity_id: !input remote
+    entity_id: !input 'remote'
     attribute: action
 
 action:
@@ -68,13 +68,13 @@ action:
               - conditions: "{{ force_brightness }}"
                 sequence:
                   - service: light.turn_on
-                    target: !input light
+                    target: !input 'light'
                     data:
                       transition: 1
-                      brightness_pct: !input brightness
+                      brightness_pct: !input 'brightness'
             default:
               - service: light.turn_on
-                target: !input light
+                target: !input 'light'
                 data:
                   transition: 1
                   
@@ -83,7 +83,7 @@ action:
           - "{{ b_action == action_group_1 }}"
         sequence:
           - service: light.turn_off
-            target: !input light
+            target: !input 'light'
             data:
               transition: 1
       - conditions:
@@ -93,7 +93,7 @@ action:
           - repeat:
               until:
                 - condition: state
-                  entity_id: !input remote
+                  entity_id: !input 'remote'
                   state: brightness_up_release
                   attribute: action
               sequence:
@@ -101,7 +101,7 @@ action:
                   data:
                     brightness_step_pct: 10
                     transition: 1
-                  target: !input light
+                  target: !input 'light'
                 - delay: '1'
 
       - conditions:
@@ -111,7 +111,7 @@ action:
           - repeat:
               until:
                 - condition: state
-                  entity_id: !input remote
+                  entity_id: !input 'remote'
                   state: brightness_down_release
                   attribute: action
               sequence:
@@ -119,5 +119,5 @@ action:
                   data:
                     brightness_step_pct: -10
                     transition: 1
-                  target: !input light
+                  target: !input 'light'
                 - delay: '1'
