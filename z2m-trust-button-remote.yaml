@@ -17,7 +17,7 @@ blueprint:
         target:
           entity:
             domain: light
-    force_brightness_1:
+    force_brightness:
       name: Force turn on brightness
       description: >
         Force the brightness to the set level below, when the "on" button on
@@ -51,7 +51,6 @@ mode: restart
 max_exceeded: silent
 
 variables:
-  force_brightness: !input force_brightness_1
   action_group_1: !input action_group
 
 trigger:
