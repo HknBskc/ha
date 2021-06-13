@@ -50,9 +50,6 @@ blueprint:
 mode: restart
 max_exceeded: silent
 
-variables:
-  action_group_1: !input action_group
-
 trigger:
   - platform: state
     entity_id: !input remote
